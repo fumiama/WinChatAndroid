@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/fcf"
+        android:orientation="vertical"/>
+
+    <FrameLayout
+        android:id="@+id/fcf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/colorPrimary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/editext_bg_chat"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/fctmsg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="#00FFFFFF"
+                android:hint="Message"
+                android:inputType="textNoSuggestions|textMultiLine"
+                android:maxLines="3"
+                android:minLines="1"
+                android:paddingLeft="15dp"
+                android:paddingTop="8dp"
+                android:paddingRight="15dp"
+                android:paddingBottom="8dp"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/fcbsnd"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_send_black_24dp"
+                android:visibility="invisible"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+</RelativeLayout>

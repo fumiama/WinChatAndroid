@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WinChatAndroid</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="friendlist_fragment_label">Friend List</string>
+    <string name="settings_fragment_label">Settings</string>
+    <string name="login_fragment_label">Login</string>
+    <string name="register_fragment_label">Register</string>
+
+    <string name="settings_network">Network</string>
+    <string name="settings_server_ep">Server Endpoint</string>
+    <string name="settings_server_ep_sum">ip:port</string>
+</resources>
