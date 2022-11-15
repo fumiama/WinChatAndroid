@@ -21,8 +21,6 @@ class FriendListFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private var user: User? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,5 +45,9 @@ class FriendListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        var user: User? = null
     }
 }

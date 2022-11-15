@@ -16,8 +16,18 @@ class Command(var typ: CommandType, var data: ByteArray) {
         8 -> CMD_TYPE_GRP_LST
         else -> throw IndexOutOfBoundsException("Type")
     }, data.copyOfRange(3, 3+ByteBuffer.wrap(data, 1, 2).order(ByteOrder.BIG_ENDIAN).short.toInt()))
-    fun marshal() = byteArrayOf(typ.typB, data.size.and(0xff00).shr(8).toByte(), data.size.and(0xff).toByte()) + data
-    fun marshal(dataLen: Int) = byteArrayOf(typ.typB, data.size.and(0xff00).shr(8).toByte(), data.size.and(0xff).toByte()) + data.copyOf(dataLen)
+    fun marshal(): ByteArray {
+        val d = ByteArray(3+data.size)
+        ByteBuffer.wrap(d, 0, 3).put(typ.typB).putShort(data.size.toShort())
+        System.arraycopy(data, 0, d, 3, data.size)
+        return d
+    }
+    fun marshal(dataLen: Int): ByteArray {
+        val d = ByteArray(3+dataLen)
+        ByteBuffer.wrap(d, 0, 3).put(typ.typB).putShort(dataLen.toShort())
+        System.arraycopy(data, 0, d, 3, dataLen)
+        return d
+    }
     companion object {
         val CMD_TYPE_UNDEF = CommandType(0)
         val CMD_TYPE_LOGIN = CommandType(1)

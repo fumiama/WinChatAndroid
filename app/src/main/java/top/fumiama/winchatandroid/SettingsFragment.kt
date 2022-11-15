@@ -1,12 +1,12 @@
 package top.fumiama.winchatandroid
 
-import android.content.SharedPreferences
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import top.fumiama.winchatandroid.net.UDP
-import java.net.InetAddress
 import java.net.URI
 
 class SettingsFragment: PreferenceFragmentCompat() {
@@ -14,16 +14,25 @@ class SettingsFragment: PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.pref_setting, rootKey)
         //if(settingsPref == null) settingsPref = context?.let { PreferenceManager.getDefaultSharedPreferences(it) }
         findPreference<EditTextPreference>("settings_server_ep")?.setOnPreferenceChangeListener { _, newValue ->
-            URI(newValue.toString()).parseServerAuthority()?.let {
+            URI("my://$newValue").parseServerAuthority()?.let {
+                Log.d("MySF", "host: ${it.host}, port: ${it.port}")
                 ep = UDP(it.host, it.port)
-
             }
             return@setOnPreferenceChangeListener true
         }
     }
 
     companion object {
-        //var settingsPref: SharedPreferences? = SettingsFragment().context?.let {PreferenceManager.getDefaultSharedPreferences(it)}
-        var ep: UDP? = null
+        private var ep: UDP? = null
+        fun getUDP(context: Context): UDP {
+            if(ep != null) return ep!!
+            ep = PreferenceManager.getDefaultSharedPreferences(context).getString("settings_server_ep", null)?.let { s ->
+                    URI("my://$s").parseServerAuthority()?.let {
+                        Log.d("MySF", "init: set host: ${it.host}, port: ${it.port}")
+                        UDP(it.host, it.port)
+                    }
+                }
+            return ep!!
+        }
     }
 }

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
 
 /**
@@ -33,6 +34,16 @@ class LoginFragment : Fragment() {
 
         binding.fltsgnup.setOnClickListener {
             findNavController().navigate(R.id.action_LoginFragment_to_RegisterFragment)
+        }
+        binding.flb.setOnClickListener {
+            Thread {
+                FriendListFragment.user = User(binding.flitun.text.toString(), binding.flitpwd.text.toString()).let {
+                    context?.let { ctx ->
+                        it.login(SettingsFragment.getUDP(ctx))
+                    }
+                    it
+                }
+            }.start()
         }
     }
 

@@ -35,11 +35,13 @@ class User(val name: String, private val pwd: String) {
         val bits = ByteBuffer.wrap(cmd.data, 2+bitslen, cmd.data.size-2-bitslen).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer()
         var sum = 0u
         var c = 0
-        out_for@for (i in bitslen-1 downTo 0) {
+        out_for@for (i in 0 until bitslen) {
             var p: Byte = 1
             for (j in 0..7) {
-                if (c++ >= bitslen) break@out_for
-                sum += if (cmd.data[2+i].and(p) > 0) bits.int.toUInt() else bits.short.toUInt()
+                if (c++ >= n) break@out_for
+                val d = if (cmd.data[2+i].and(p) > 0) bits.int.toUInt() else bits.short.toUInt()
+                Log.d("MyUser", "add: $d")
+                sum += d
                 p = p.rotateLeft(1)
             }
         }
