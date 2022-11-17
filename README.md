@@ -1,6 +1,6 @@
 # WinChatAndroid
 
-> 部分layout来自 [ChatYuk](https://github.com/alfianyusufabdullah/ChatYuk)
+> 部分layout来自[ChatYuk](https://github.com/alfianyusufabdullah/ChatYuk)，图标来自[阿里巴巴矢量图标库-一码当先红包](https://www.iconfont.cn/illustrations/detail?cid=36441)
 
 > 配套服务端[WinChatServer](https://github.com/wa-kakalala/WinChatServer)
 
