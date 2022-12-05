@@ -39,7 +39,7 @@ class User(val name: String, private val pwd: String) {
             var p: Byte = 1
             for (j in 0..7) {
                 if (c++ >= n) break@out_for
-                val d = if (cmd.data[2+i].and(p) > 0) bits.int.toUInt() else bits.short.toUInt()
+                val d = if (cmd.data[2+i].and(p).toUByte() > 0u) bits.int.toUInt() else bits.short.toUInt()
                 Log.d("MyUser", "add: $d")
                 sum += d
                 p = p.rotateLeft(1)
