@@ -1,12 +1,14 @@
 package top.fumiama.winchatandroid
 
 import android.os.Bundle
+import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentFriendlistBinding
 
@@ -26,6 +28,7 @@ class FriendListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFriendlistBinding.inflate(inflater, container, false)
+        friend_lst_f_handler = FriendListFragmentHandler(this, Looper.myLooper()!!)
         return binding.root
     }
 
@@ -47,7 +50,16 @@ class FriendListFragment : Fragment() {
         _binding = null
     }
 
+    fun insertRow(b: Bundle) {
+        val name = b.getString("name", "N/A")
+        val msg = b.getString("msg", "N/A")
+        val count = b.getInt("count", 0)
+        val total = b.getInt("total", 0)
+
+    }
+
     companion object {
         var user: User? = null
+        var friend_lst_f_handler: FriendListFragmentHandler? = null
     }
 }
