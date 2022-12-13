@@ -2,27 +2,22 @@ package top.fumiama.winchatandroid.ui
 
 import android.annotation.SuppressLint
 import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.line_friend.view.*
 import top.fumiama.winchatandroid.MainActivity.Companion.mainWeakReference
 import top.fumiama.winchatandroid.R
-import top.fumiama.winchatandroid.client.User
 
 open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    open inner class RecyclerViewAdapter(context: Context, private val clickLine: (Int, Array<String>, View)->Unit, private val longClickLine: (Int, Array<String>, View)->Boolean, private val cm: ClipboardManager):
+    open inner class RecyclerViewAdapter(private val clickLine: (Int, Array<String>, View)->Unit, private val longClickLine: (Int, Array<String>, View)->Unit):
         RecyclerView.Adapter<FriendListViewHolder>() {
-        private val pref = PreferenceManager.getDefaultSharedPreferences(context)
         private var listIDs: List<Int>? = null
         // getKeys by user
-        open fun getKeys(user: User): List<Int>? = null
+        open fun getKeys(): List<Int>? = null
         // getValue return [name, msg, count]
         open fun getValue(id: Int): Array<String>? = null
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendListViewHolder {
@@ -52,11 +47,16 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
                                     clickLine(id, data, this)
                                 }
                                 setOnLongClickListener {
-                                    cm.setPrimaryClip(ClipData.newPlainText(mainWeakReference?.get()?.getString(R.string.app_name)?:"WinChat", "$id"))
-                                    mainWeakReference?.get()?.runOnUiThread {
-                                        Toast.makeText(context, "已复制ID", Toast.LENGTH_SHORT).show()
+                                    mainWeakReference?.get()?.apply {
+                                        cm?.apply {
+                                            setPrimaryClip(ClipData.newPlainText(mainWeakReference?.get()?.getString(R.string.app_name)?:"WinChatAndroid", "$id"))
+                                            runOnUiThread {
+                                                Toast.makeText(context, "已复制ID", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
                                     }
-                                    return@setOnLongClickListener longClickLine(id, data, this)
+                                    longClickLine(id, data, this)
+                                    return@setOnLongClickListener true
                                 }
                             }
                         }
@@ -67,12 +67,12 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
 
         override fun getItemCount() = listIDs?.size?:0
 
-        fun refresh(user: User) = Thread{
-            listIDs = getKeys(user)
+        fun refresh() = Thread{
+            listIDs = getKeys()
             mainWeakReference?.get()?.runOnUiThread { notifyDataSetChanged() }
         }.start()
 
-        fun add(id:Int, data: Array<String>) = Thread{
+        fun add(id:Int) = Thread{
             listIDs?.apply {
                 val newList = List(size+1) {
                     if(it == 0) return@List id
@@ -98,6 +98,19 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
                         listIDs = newList
                         mainWeakReference?.get()?.runOnUiThread {
                             notifyItemRemoved(i)
+                        }
+                        return
+                    }
+                }
+            }
+        }
+
+        fun replace(id: Int) {
+            listIDs?.apply {
+                for(i in 0 until size) {
+                    if(this[i] == id) {
+                        mainWeakReference?.get()?.runOnUiThread {
+                            notifyItemChanged(i)
                         }
                         return
                     }

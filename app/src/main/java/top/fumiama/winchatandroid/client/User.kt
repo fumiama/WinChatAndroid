@@ -59,4 +59,11 @@ class User(val name: String, private val pwd: String) {
         id = ByteBuffer.wrap(b, 1, 4).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().int
         return id
     }
+
+    fun getCommand(s: UDP): Command? {
+        if(id == 0) return null
+        val b = ByteArray(2048)
+        s.recv(b)
+        return Command(b)
+    }
 }

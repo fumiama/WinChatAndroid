@@ -1,5 +1,7 @@
 package top.fumiama.winchatandroid
 
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +19,8 @@ import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
+    var cm: ClipboardManager? = null
+
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
@@ -25,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         mainWeakReference = WeakReference(this)
+        cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
