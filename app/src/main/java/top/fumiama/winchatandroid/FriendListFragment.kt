@@ -3,10 +3,12 @@ package top.fumiama.winchatandroid
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
@@ -50,6 +52,7 @@ class FriendListFragment : Fragment() {
             adapter = ad
             setOnScrollChangeListener { _, _, scrollY, _, _ -> binding.ffsw.isEnabled = scrollY == 0  }
         }
+        ad?.refresh()
         binding.ffsw.setOnRefreshListener {
             if(user == null) { // 未登录
                 binding.root.postDelayed({
@@ -69,9 +72,14 @@ class FriendListFragment : Fragment() {
     fun insertRow(b: Bundle) {
         val msg = b.getString("msg", "N/A")
         val id = b.getInt("id", 0)
+        Log.d("MyFLF", "id: $id, msg: $msg")
         pref?.getString(id.toString(), "")?.let { dataStr ->
-            if(dataStr == "") { // new msg
+            if(dataStr == "" || ad?.idDataMap?.containsKey(id) != true) { // new msg
                 val data = arrayOf("匿名", msg, "1")
+                Log.d("MyFLF", "is new message, data: ${data[0]}\n" +
+                        "${data[1]}\n" +
+                        data[2]
+                )
                 pref?.edit {
                     putString(id.toString(), "${data[0]}\n${data[1]}\n${data[2]}")
                     apply()
@@ -83,9 +91,16 @@ class FriendListFragment : Fragment() {
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                        Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             } else {
                 val data = dataStr.split("\n").toTypedArray()
+                Log.d("MyFLF", "is old message, data: $${data[0]}\n" +
+                        "${data[1]}\n" +
+                        data[2]
+                )
                 data[2] = (data[2].toInt()+1).toString()
                 pref?.edit {
                     putString(id.toString(), "${data[0]}\n${data[1]}\n${data[2]}")
@@ -98,6 +113,9 @@ class FriendListFragment : Fragment() {
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                        Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

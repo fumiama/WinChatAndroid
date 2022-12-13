@@ -56,7 +56,7 @@ class User(val name: String, private val pwd: String) {
         cmd = Command(b)
         if (cmd.typ != CMD_TYPE_LOGIN) return 0 // invalid type
         if (cmd.data[0].toInt() != 3) return 0 // msg: 3: login_success, others: invalid
-        id = ByteBuffer.wrap(b, 1, 4).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().int
+        id = ByteBuffer.wrap(cmd.data, 1, 4).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().int
         return id
     }
 

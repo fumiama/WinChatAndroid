@@ -15,9 +15,9 @@ import top.fumiama.winchatandroid.R
 open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     open inner class RecyclerViewAdapter(private val clickLine: (Int, Array<String>, View)->Unit, private val longClickLine: (Int, Array<String>, View)->Unit):
         RecyclerView.Adapter<FriendListViewHolder>() {
-        private var listIDs: List<Int>? = null
+        private var listIDs: List<Int> = listOf()
         // getKeys by user
-        open fun getKeys(): List<Int>? = null
+        open fun getKeys(): List<Int> = listOf()
         // getValue return [name, msg, count]
         open fun getValue(id: Int): Array<String>? = null
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendListViewHolder {
@@ -31,7 +31,7 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         override fun onBindViewHolder(holder: FriendListViewHolder, position: Int) {
             Log.d("MyMain", "Bind open at $position")
             Thread{
-                listIDs?.apply {
+                listIDs.apply {
                     if (position < size) {
                         val id = get(position)
                         val data = getValue(id)!!
@@ -65,7 +65,7 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
             }.start()
         }
 
-        override fun getItemCount() = listIDs?.size?:0
+        override fun getItemCount() = listIDs.size
 
         fun refresh() = Thread{
             listIDs = getKeys()
@@ -73,7 +73,7 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         }.start()
 
         fun add(id:Int) = Thread{
-            listIDs?.apply {
+            listIDs.apply {
                 val newList = List(size+1) {
                     if(it == 0) return@List id
                     return@List this[it-1]
@@ -86,8 +86,8 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         }.start()
 
         fun remove(id: Int) {
-            listIDs?.apply {
-                for(i in 0 until size) {
+            listIDs.apply {
+                for(i in indices) {
                     if(this[i] == id) {
                         val newList = List(size-1) {
                             return@List when {
@@ -106,8 +106,8 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         }
 
         fun replace(id: Int) {
-            listIDs?.apply {
-                for(i in 0 until size) {
+            listIDs.apply {
+                for(i in indices) {
                     if(this[i] == id) {
                         mainWeakReference?.get()?.runOnUiThread {
                             notifyItemChanged(i)
