@@ -13,6 +13,7 @@ import android.view.View
 import androidx.navigation.*
 import kotlinx.android.synthetic.main.activity_main.*
 import top.fumiama.winchatandroid.databinding.ActivityMainBinding
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
+
+        mainWeakReference = WeakReference(this)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -72,5 +75,9 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    companion object{
+        var mainWeakReference: WeakReference<MainActivity>? = null
     }
 }
