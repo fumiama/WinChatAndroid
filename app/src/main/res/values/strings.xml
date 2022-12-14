@@ -7,6 +7,10 @@
     <string name="login_fragment_label">Login</string>
     <string name="register_fragment_label">Register</string>
 
+    <string name="choice_title">Choose Action</string>
+
+    <string name="toast_ID_copied">ID copied</string>
+
     <string name="settings_network">Network</string>
     <string name="settings_server_ep">Server Endpoint</string>
     <string name="settings_server_ep_sum">ip:port</string>

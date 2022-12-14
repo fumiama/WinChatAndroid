@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="line_friend_choice_types">
+        <item>Copy Sender ID</item>
+        <item>Delete Dialog</item>
+    </string-array>
+</resources>

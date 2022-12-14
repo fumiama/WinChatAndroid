@@ -25,6 +25,7 @@
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.5076992753623188" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.5395833333333333" />
         <entry key="app/src/main/res/layout/from_message.xml" value="0.5395833333333333" />
+        <entry key="app/src/main/res/layout/line_choice.xml" value="0.5395833333333333" />
         <entry key="app/src/main/res/layout/line_friend.xml" value="0.5395833333333333" />
         <entry key="app/src/main/res/layout/to_message.xml" value="0.5395833333333333" />
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.5395833333333333" />
@@ -34,7 +35,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

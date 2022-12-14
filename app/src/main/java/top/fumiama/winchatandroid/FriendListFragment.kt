@@ -1,5 +1,7 @@
 package top.fumiama.winchatandroid
 
+import android.app.AlertDialog
+import android.content.ClipData
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Looper
@@ -8,6 +10,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
@@ -125,14 +128,52 @@ class FriendListFragment : Fragment() {
         private val onLineClicked = { id: Int, data: Array<String>, v: View ->
 
         }
+        private val onLineLongClickedTypes = resources.getStringArray(R.array.line_friend_choice_types)
         private val onLineLongClicked = { id: Int, data: Array<String>, v: View ->
-
+            AlertDialog.Builder(context)
+                .setTitle(R.string.choice_title)
+                .setIcon(R.mipmap.ic_launcher)
+                .setSingleChoiceItems(ArrayAdapter(context!!, R.layout.line_choice, onLineLongClickedTypes), 0) { d, p ->
+                    when(p) {
+                        0 -> {
+                            MainActivity.mainWeakReference?.get()?.apply {
+                                cm?.apply {
+                                    setPrimaryClip(ClipData.newPlainText(MainActivity.mainWeakReference?.get()?.getString(R.string.app_name)?:"WinChatAndroid", "$id"))
+                                    runOnUiThread {
+                                        Toast.makeText(context, R.string.toast_ID_copied, Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        }
+                        1 -> try {
+                            pref?.edit {
+                                remove(id.toString())
+                                apply()
+                                Log.d("MyFLF", "removed pref of id $id")
+                            }
+                            ad?.apply {
+                                idDataMap.remove(id)
+                                remove(id)
+                                Log.d("MyFLF", "removed ad of id $id")
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                                Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    d.cancel()
+                }
+                .show()
+            true
         }
         inner class RecyclerViewAdapter: FriendListViewHolder.RecyclerViewAdapter(onLineClicked, onLineLongClicked) {
             val idDataMap = hashMapOf<Int, Array<String>>()
             override fun getKeys(): List<Int> {
                 pref?.all?.forEach { e ->
                     e.key.toIntOrNull()?.let { id ->
+                        Log.d("MyFLF", "load friend: $id")
                         val data = e.value.toString().split("\n").toTypedArray()
                         if(data.size != 3) return@forEach
                         idDataMap[id] = data
