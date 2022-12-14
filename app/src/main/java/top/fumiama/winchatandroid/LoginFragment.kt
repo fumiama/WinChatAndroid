@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import top.fumiama.winchatandroid.FriendListFragment.Companion.friendListFragmentHandler
 import top.fumiama.winchatandroid.MainActivity.Companion.mainWeakReference
@@ -16,6 +17,7 @@ import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
 import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
+import java.io.File
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -76,10 +78,19 @@ class LoginFragment : Fragment() {
                                         val msg = Message.obtain(friendListFragmentHandler, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
                                         val data = Bundle()
                                         data.putInt("id", msgTxt.fromID)
-                                        data.putString("msg", msgTxt.msg)
+                                        var txt = msgTxt.msg.substringBefore('\n').trim()
+                                        if(txt.length > 32) txt = txt.take(32)
+                                        data.putString("msg", txt)
                                         msg.data = data
                                         msg.sendToTarget()
+                                        mainWeakReference?.get()?.msgFolder?.let { msf ->
+                                            File(msf, "${msgTxt.fromID}").apply {
+                                                if(!exists()) createNewFile()
+                                                appendBytes(cmd.marshal())
+                                            }
+                                        }
                                     }
+                                    else -> {}
                                 }
                             }
                         }

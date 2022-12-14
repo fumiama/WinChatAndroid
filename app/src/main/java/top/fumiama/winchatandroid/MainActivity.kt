@@ -2,8 +2,9 @@ package top.fumiama.winchatandroid
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.os.Message
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.ui.AppBarConfiguration
@@ -15,11 +16,13 @@ import android.view.View
 import androidx.navigation.*
 import kotlinx.android.synthetic.main.activity_main.*
 import top.fumiama.winchatandroid.databinding.ActivityMainBinding
+import java.io.File
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
     var cm: ClipboardManager? = null
+    var msgFolder: File? = null
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -30,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
         mainWeakReference = WeakReference(this)
         cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        msgFolder = getExternalFilesDir("msg")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -47,10 +51,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        var i = 123
         binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAnchorView(R.id.fab)
-                .setAction("Action", null).show()
+            val msg = Message.obtain(FriendListFragment.friendListFragmentHandler, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
+            val data = Bundle()
+            data.putInt("id", i)
+            data.putString("msg", "test $i")
+            i++
+            msg.data = data
+            msg.sendToTarget()
         }
     }
 
