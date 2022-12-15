@@ -25,6 +25,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_out_left_exit"
             app:popExitAnim="@anim/slide_in_right_exit" />
+        <action
+            android:id="@+id/action_FriendListFragment_to_ChatFragment"
+            app:destination="@id/ChatFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_out_left_exit"
+            app:popExitAnim="@anim/slide_in_right_exit" />
     </fragment>
     <fragment
         android:id="@+id/SettingsFragment"
@@ -50,5 +57,11 @@
         android:name="top.fumiama.winchatandroid.RegisterFragment"
         android:label="@string/register_fragment_label"
         tools:layout="@layout/fragment_register">
+    </fragment>
+    <fragment
+        android:id="@+id/ChatFragment"
+        android:name="top.fumiama.winchatandroid.ChatFragment"
+        android:label="@string/chat_fragment_label"
+        tools:layout="@layout/fragment_chat">
     </fragment>
 </navigation>

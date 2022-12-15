@@ -6,10 +6,13 @@
     <string name="settings_fragment_label">Settings</string>
     <string name="login_fragment_label">Login</string>
     <string name="register_fragment_label">Register</string>
+    <string name="chat_fragment_label">Chat</string>
 
     <string name="choice_title">Choose Action</string>
 
     <string name="toast_ID_copied">ID copied</string>
+
+    <string name="name_me">Me</string>
 
     <string name="settings_network">Network</string>
     <string name="settings_server_ep">Server Endpoint</string>

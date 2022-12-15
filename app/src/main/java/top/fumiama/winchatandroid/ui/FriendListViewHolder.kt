@@ -29,7 +29,6 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
 
         @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
         override fun onBindViewHolder(holder: FriendListViewHolder, position: Int) {
-            Log.d("MyFLVH", "Bind open at $position")
             Thread{
                 listIDs.apply {
                     if (position < size) {
@@ -41,6 +40,8 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
                                 tn.text = data[0]
                                 ta.text = data[1]
                                 fftc.text = data[2]
+                                lwclast.visibility = View.VISIBLE
+                                Log.d("MyFLVH", "bind open at $position, id: ${fftt.text}, tn: ${tn.text}, ta: ${ta.text}, fftc: ${fftc.text}, lwclast.visible: ${lwclast.visibility == View.VISIBLE}")
                                 setOnClickListener {
                                     clickLine(id, data, this)
                                 }
@@ -50,6 +51,7 @@ open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
                             }
                         }
                     } else if(position == size) {
+                        Log.d("MyFLVH", "bind last")
                         holder.itemView.apply {
                             lwclast.visibility = View.GONE
                             tn.text = ""
