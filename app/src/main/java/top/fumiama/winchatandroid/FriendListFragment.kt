@@ -126,7 +126,11 @@ class FriendListFragment : Fragment() {
 
     inner class FriendListViewHolderInstance(itemView: View): FriendListViewHolder(itemView) {
         private val onLineClicked = { id: Int, data: Array<String>, v: View ->
-
+            val bundle = Bundle()
+            bundle.putInt("id", id)
+            bundle.putString("name", data[0])
+            bundle.putInt("count", data[2].toInt())
+            findNavController().navigate(R.id.action_FriendListFragment_to_ChatFragment, bundle)
         }
         private val onLineLongClickedTypes = resources.getStringArray(R.array.line_friend_choice_types)
         private val onLineLongClicked = { id: Int, data: Array<String>, v: View ->

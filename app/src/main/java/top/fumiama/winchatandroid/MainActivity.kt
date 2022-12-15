@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Message
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.ui.AppBarConfiguration
@@ -15,6 +16,8 @@ import android.view.MenuItem
 import android.view.View
 import androidx.navigation.*
 import kotlinx.android.synthetic.main.activity_main.*
+import top.fumiama.winchatandroid.client.Command
+import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.databinding.ActivityMainBinding
 import java.io.File
 import java.lang.ref.WeakReference
@@ -23,6 +26,8 @@ class MainActivity : AppCompatActivity() {
 
     var cm: ClipboardManager? = null
     var msgFolder: File? = null
+
+    var menuMain: Menu? = null
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -34,6 +39,9 @@ class MainActivity : AppCompatActivity() {
         mainWeakReference = WeakReference(this)
         cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         msgFolder = getExternalFilesDir("msg")
+        msgFolder?.setReadable(true)
+        msgFolder?.setWritable(true)
+        msgFolder?.setExecutable(true)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -45,9 +53,13 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            when(destination.id) {
-                R.id.FriendListFragment -> fab.visibility = View.VISIBLE
-                else -> fab.visibility = View.GONE
+            if(destination.id == R.id.FriendListFragment) {
+                fab.visibility = View.VISIBLE
+                menuMain?.findItem(R.id.action_settings)?.isVisible = true
+            }
+            else {
+                fab.visibility = View.GONE
+                menuMain?.findItem(R.id.action_settings)?.isVisible = false
             }
         }
 
@@ -59,6 +71,14 @@ class MainActivity : AppCompatActivity() {
             data.putString("msg", "test $i")
             i++
             msg.data = data
+            File(msgFolder, "${i}").apply {
+                Log.d("MyLF", "append bytes to $this")
+                if(!exists()) createNewFile()
+                setReadable(true)
+                setWritable(true)
+                setExecutable(false)
+                appendBytes(Command(Command.CMD_TYPE_MSG_TXT, TextMessage(i, 1, "test $i").marshal()).marshal())
+            }
             msg.sendToTarget()
         }
     }
@@ -66,6 +86,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
+        menuMain = menu
         return true
     }
 

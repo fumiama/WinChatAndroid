@@ -17,6 +17,7 @@ import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
 import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
+import top.fumiama.winchatandroid.net.UDP
 import java.io.File
 
 /**
@@ -48,27 +49,37 @@ class LoginFragment : Fragment() {
             if (FriendListFragment.user != null) {
                 findNavController().popBackStack()
             }
+            if (binding.flitun.text.isEmpty() || binding.flitpwd.text.isEmpty()) {
+                return@setOnClickListener
+            }
+            binding.flsld.visibility = View.VISIBLE
             Thread {
                 context?.let { ctx ->
-                    val udp = SettingsFragment.getUDP(ctx)
+                    udp = SettingsFragment.getUDP(ctx)
+                    if(udp == null) return@Thread
                     try {
                         FriendListFragment.user = User(binding.flitun.text.toString(), binding.flitpwd.text.toString()).let {
-                            it.login(udp)
+                            it.login(udp!!)
                             it
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         mainWeakReference?.get()?.runOnUiThread {
                             Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                            binding.flsld.visibility = View.GONE
                         }
+                    }
+                    mainWeakReference?.get()?.runOnUiThread {
+                        binding.flsld.visibility = View.GONE
                     }
                     if (FriendListFragment.user != null && FriendListFragment.user!!.userID() != 0) mainWeakReference?.get()?.runOnUiThread {
                         findNavController().popBackStack()
                         Toast.makeText(context, "登录成功, ID: ${FriendListFragment.user!!.userID()}", Toast.LENGTH_SHORT).show()
                     }
+                    val msgFolder = mainWeakReference?.get()?.msgFolder ?: return@Thread
                     while (FriendListFragment.user != null && FriendListFragment.user!!.userID() != 0) {
                         FriendListFragment.user?.let userLet@ { user ->
-                            user.getCommand(udp)?.let cmdLet@ { cmd ->
+                            user.getCommand(udp!!)?.let cmdLet@ { cmd ->
                                 Log.d("MyLF", "received msg type: ${cmd.typ.typ}")
                                 when(cmd.typ) {
                                     CMD_TYPE_MSG_TXT -> {
@@ -82,13 +93,16 @@ class LoginFragment : Fragment() {
                                         if(txt.length > 32) txt = txt.take(32)
                                         data.putString("msg", txt)
                                         msg.data = data
-                                        msg.sendToTarget()
-                                        mainWeakReference?.get()?.msgFolder?.let { msf ->
-                                            File(msf, "${msgTxt.fromID}").apply {
-                                                if(!exists()) createNewFile()
-                                                appendBytes(cmd.marshal())
-                                            }
+                                        Log.d("MyLF", "lookup msg folder $msgFolder")
+                                        File(msgFolder, "${msgTxt.fromID}").apply {
+                                            Log.d("MyLF", "append bytes to $this")
+                                            if(!exists()) createNewFile()
+                                            setReadable(true)
+                                            setWritable(true)
+                                            setExecutable(false)
+                                            appendBytes(cmd.marshal())
                                         }
+                                        msg.sendToTarget()
                                     }
                                     else -> {}
                                 }
@@ -103,5 +117,9 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        var udp: UDP? = null
     }
 }
