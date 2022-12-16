@@ -23,11 +23,11 @@
 
 ### 聊天列表行
 
-![line chat](https://user-images.githubusercontent.com/41315874/202401393-908332d7-77bf-4ae8-b706-4e4cf90e9630.png)
+![line chat](https://user-images.githubusercontent.com/41315874/208007355-4126540a-852a-43fc-bd17-585cb15590ed.png)
 
 ### 聊天
 
-![fragment chat](https://user-images.githubusercontent.com/41315874/208007355-4126540a-852a-43fc-bd17-585cb15590ed.png)
+![fragment chat](https://user-images.githubusercontent.com/41315874/202401526-ed8b9a92-db3e-4068-9512-0265b98c9352.png)
 
 ### 导航流程图
 
