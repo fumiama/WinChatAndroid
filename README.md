@@ -24,12 +24,21 @@
 ### 聊天列表行
 
 ![line chat](https://user-images.githubusercontent.com/41315874/208007355-4126540a-852a-43fc-bd17-585cb15590ed.png)
+![line chat_running](https://user-images.githubusercontent.com/41315874/208019682-e759b620-6cf1-425f-a80d-b0c45eca9b7f.jpg)
+
 
 ### 聊天
 
-![fragment chat_dark](https://user-images.githubusercontent.com/41315874/208019470-6305915a-c945-41d5-94f7-c395428f122e.jpg)
-![fragment chat_light](https://user-images.githubusercontent.com/41315874/208019480-ad12c68b-b8b9-4e30-9798-eae275ad10dc.png)
-
+<table>
+	<tr>
+		<td align="center"><img src="https://user-images.githubusercontent.com/41315874/208019470-6305915a-c945-41d5-94f7-c395428f122e.jpg"></td>
+		<td align="center"><img src="https://user-images.githubusercontent.com/41315874/208019480-ad12c68b-b8b9-4e30-9798-eae275ad10dc.png"></td>
+	</tr>
+    <tr>
+		<td align="center">深色模式</td>
+		<td align="center">浅色模式</td>
+	</tr>
+</table>
 
 ### 导航流程图
 
