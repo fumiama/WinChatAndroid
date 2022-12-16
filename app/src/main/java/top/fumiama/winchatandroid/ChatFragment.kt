@@ -74,7 +74,20 @@ class ChatFragment : Fragment() {
                 if(binding.fctmsg.text.isEmpty()) return@setOnClickListener
                 try {
                     FriendListFragment.user?.apply {
-                        udp?.send(Command(CMD_TYPE_MSG_TXT, TextMessage(userID(), fromID, binding.fctmsg.text.toString()).marshal()).marshal())
+                        val d = Command(CMD_TYPE_MSG_TXT, TextMessage(userID(), fromID, binding.fctmsg.text.toString()).marshal()).marshal()
+                        udp?.send(d)
+                        mainWeakReference?.get()?.msgFolder?.apply {
+                            File(this, "$fromID").apply {
+                                if(!exists()) createNewFile()
+                                appendBytes(d)
+                            }
+                        }
+                        val line = inflater.inflate(R.layout.to_message, binding.cfl, false)
+                        line.tol.toUsernameGroup.toUsername.setText(R.string.name_me)
+                        line.tol.toMessage.text = binding.fctmsg.text
+                        line.tol.toUsernameGroup.icon_fb2.setBackgroundResource(R.drawable.ic_girl_pic)
+                        binding.cfl.addView(line)
+                        binding.fctmsg.text.clear()
                     }?:mainWeakReference?.get()?.runOnUiThread {
                         Toast.makeText(context, "Please Login First", Toast.LENGTH_SHORT).show()
                     }
