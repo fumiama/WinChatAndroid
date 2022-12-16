@@ -14,8 +14,13 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.navigation.*
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_input.view.*
 import top.fumiama.winchatandroid.client.Command
 import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.databinding.ActivityMainBinding
@@ -63,23 +68,32 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        var i = 123
         binding.fab.setOnClickListener { view ->
-            val msg = Message.obtain(FriendListFragment.friendListFragmentHandler, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
-            val data = Bundle()
-            data.putInt("id", i)
-            data.putString("msg", "test $i")
-            i++
-            msg.data = data
-            File(msgFolder, "${i}").apply {
-                Log.d("MyLF", "append bytes to $this")
-                if(!exists()) createNewFile()
-                setReadable(true)
-                setWritable(true)
-                setExecutable(false)
-                appendBytes(Command(Command.CMD_TYPE_MSG_TXT, TextMessage(i, 1, "test $i").marshal()).marshal())
-            }
-            msg.sendToTarget()
+            val t = layoutInflater.inflate(R.layout.dialog_input, null, false)
+            AlertDialog.Builder(this@MainActivity)
+                .setView(t)
+                .setTitle(R.string.dialog_add_user)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val info = t.diet.text.toString().split(' ')
+                    if(info.size != 2) {
+                        Toast.makeText(this, R.string.toast_invalid_input, Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                    info[0].toIntOrNull()?.let { fromID ->
+                        val msg = Message.obtain(FriendListFragment.friendListFragmentHandler, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
+                        val data = Bundle()
+                        data.putInt("id", fromID)
+                        data.putString("msg", "create dialog")
+                        msg.data = data
+                        msg.sendToTarget()
+                        PreferenceManager.getDefaultSharedPreferences(this).edit {
+                            putString("name$fromID", info[1])
+                            apply()
+                        }
+                    }?:Toast.makeText(this, R.string.toast_invalid_input, Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                .show()
         }
     }
 
