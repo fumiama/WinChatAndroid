@@ -2,35 +2,35 @@ package top.fumiama.winchatandroid
 
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.os.Message
-import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
+import android.provider.OpenableColumns
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import androidx.core.view.WindowCompat
 import androidx.navigation.*
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_input.view.*
 import top.fumiama.winchatandroid.FriendListFragment.Companion.user
 import top.fumiama.winchatandroid.client.Command
 import top.fumiama.winchatandroid.client.GroupJoinQuit
-import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileInputStream
 import java.lang.ref.WeakReference
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
                     fi.close()
                 }
                 fd?.close()
-                ChatFragment.sendFileCallBack(inputFile)
+                ChatFragment.sendFileCallBack(inputFile, getNameFromURI(uri))
             }.start()
         }
     }
@@ -187,6 +187,16 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    private fun getNameFromURI(uri: Uri?): String? {
+        val c: Cursor? = uri?.let { contentResolver.query(it, null, null, null, null) }
+        c?.moveToFirst()
+        val i = c?.getColumnIndex(OpenableColumns.DISPLAY_NAME)?:0
+        if (i < 0) {
+            return null
+        }
+        return c?.getString(i)
     }
 
     companion object{

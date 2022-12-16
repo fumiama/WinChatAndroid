@@ -22,6 +22,7 @@ import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
 import top.fumiama.winchatandroid.net.UDP
 import java.io.File
+import java.nio.ByteBuffer
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -158,7 +159,7 @@ class LoginFragment : Fragment() {
                                                                 try {
                                                                     tcp.send(f, ack.crc64)
                                                                     val b = tcp.recv()
-                                                                    if (b[8].toInt() != 0) {
+                                                                    if (ByteBuffer.wrap(b, 0, 8).asReadOnlyBuffer().long != ack.crc64 || b[8].toInt() != 0) {
                                                                         mainWeakReference?.get()?.runOnUiThread {
                                                                             Toast.makeText(context, "Send file failed: server error", Toast.LENGTH_SHORT).show()
                                                                         }

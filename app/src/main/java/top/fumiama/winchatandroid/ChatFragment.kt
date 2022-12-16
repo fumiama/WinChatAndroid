@@ -154,7 +154,13 @@ class ChatFragment : Fragment() {
                 }
             }
             binding.fcbsnd.setOnLongClickListener {
-                sendFileCallBack = { inputFile -> // already in another thread
+                if(user == null) {
+                    mainWeakReference?.get()?.runOnUiThread {
+                        Toast.makeText(context, "Please Login First", Toast.LENGTH_SHORT).show()
+                    }
+                    return@setOnLongClickListener true
+                }
+                sendFileCallBack = { inputFile, name -> // already in another thread
                     try {
                         val crc64 = CRC64().crc64(inputFile)
                         mainWeakReference?.get()?.apply {
@@ -162,12 +168,12 @@ class ChatFragment : Fragment() {
                         }
                         context?.let { ctx ->
                             PreferenceManager.getDefaultSharedPreferences(ctx).edit {
-                                putString("crc64name$crc64", "${inputFile.name}.${inputFile.extension}")
+                                putString("crc64name$crc64", "$name.${inputFile.extension}")
                                 apply()
                             }
                         }
                         user?.udp?.apply {
-                            val d = Command(Command.CMD_TYPE_MSG_BIN, BinMessage(user!!.userID(), fromID, crc64, "${inputFile.name}.${inputFile.extension}").marshal()).marshal()
+                            val d = Command(CMD_TYPE_MSG_BIN, BinMessage(user!!.userID(), fromID, crc64, "$name.${inputFile.extension}").marshal()).marshal()
                             mainWeakReference?.get()?.msgFolder?.apply {
                                 File(this, "$fromID").apply {
                                     if(!exists()) createNewFile()
@@ -179,7 +185,7 @@ class ChatFragment : Fragment() {
                         }
                         val line = layoutInflater.inflate(R.layout.to_message, binding.cfl, false)
                         line.tol.toUsernameGroup.toUsername.setText(R.string.name_me)
-                        line.tol.toMessage.text = inputFile.name
+                        line.tol.toMessage.text = name?:"null"
                         line.tol.toUsernameGroup.icon_fb2.setBackgroundResource(R.drawable.ic_girl_pic)
                         mainWeakReference?.get()?.runOnUiThread {
                             binding.cfl.addView(line)
@@ -230,6 +236,6 @@ class ChatFragment : Fragment() {
 
     companion object {
         var chatFragmentHandler: ChatFragmentHandler? = null
-        var sendFileCallBack: (File)->Unit = {}
+        var sendFileCallBack: (File, String?)->Unit = {_, _ -> }
     }
 }
