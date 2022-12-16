@@ -17,6 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_friendlist.*
+import top.fumiama.winchatandroid.LoginFragment.Companion.udp
+import top.fumiama.winchatandroid.client.Command
+import top.fumiama.winchatandroid.client.GroupJoinQuit
 import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentFriendlistBinding
 import top.fumiama.winchatandroid.ui.FriendListViewHolder
@@ -164,6 +167,20 @@ class FriendListFragment : Fragment() {
                             }
                             MainActivity.mainWeakReference?.get()?.msgFolder?.apply {
                                 File(this, "$id").delete()
+                            }
+                            pref?.getString("name$id", "N/A")?.let {
+                                if(it.startsWith("grp ")) Thread {
+                                    try {
+                                        udp?.apply {
+                                            send(Command(Command.CMD_TYPE_GRP_QUIT, GroupJoinQuit(id).marshal()).marshal())
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                                            Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }.start()
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()

@@ -14,7 +14,10 @@ import top.fumiama.winchatandroid.ChatFragment.Companion.chatFragmentHandler
 import top.fumiama.winchatandroid.FriendListFragment.Companion.friendListFragmentHandler
 import top.fumiama.winchatandroid.MainActivity.Companion.mainWeakReference
 import top.fumiama.winchatandroid.client.Command
+import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_JOIN
+import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_QUIT
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
+import top.fumiama.winchatandroid.client.GroupJoinQuitReply
 import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
@@ -89,7 +92,7 @@ class LoginFragment : Fragment() {
                                         if(txt.length > 32) txt = txt.take(32)
                                         data.putString("msg", txt)
                                         friendListFragmentHandler?.let {
-                                            val msg = Message.obtain(friendListFragmentHandler, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
+                                            val msg = Message.obtain(it, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
                                             msg.data = data
                                             msg.sendToTarget()
                                         }
@@ -106,6 +109,32 @@ class LoginFragment : Fragment() {
                                             val msgChat = Message.obtain(it, ChatFragmentHandler.CHAT_F_MSG_INSERT_FROM_MSG)
                                             msgChat.data = data
                                             msgChat.sendToTarget()
+                                        }
+                                    }
+                                    CMD_TYPE_GRP_JOIN -> {
+                                        val re = GroupJoinQuitReply(cmd.data)
+                                        if(re.msg.toInt() != 0) {
+                                            mainWeakReference?.get()?.runOnUiThread {
+                                                Toast.makeText(context, "Join group ${re.grpID} failed", Toast.LENGTH_SHORT).show()
+                                            }
+                                            return@userLet
+                                        }
+                                        val data = Bundle()
+                                        data.putInt("id", re.grpID)
+                                        data.putString("msg", "create dialog")
+                                        friendListFragmentHandler?.let {
+                                            val msg = Message.obtain(it, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
+                                            msg.data = data
+                                            msg.sendToTarget()
+                                        }
+                                    }
+                                    CMD_TYPE_GRP_QUIT -> {
+                                        val re = GroupJoinQuitReply(cmd.data)
+                                        if(re.msg.toInt() != 0) mainWeakReference?.get()?.runOnUiThread {
+                                            Toast.makeText(context, "Quit group ${re.grpID} failed", Toast.LENGTH_SHORT).show()
+                                        }
+                                        else mainWeakReference?.get()?.runOnUiThread {
+                                            Toast.makeText(context, "Quit group ${re.grpID} succeeded", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                     else -> {}

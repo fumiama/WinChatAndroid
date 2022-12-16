@@ -21,7 +21,9 @@ import androidx.navigation.*
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_input.view.*
+import top.fumiama.winchatandroid.LoginFragment.Companion.udp
 import top.fumiama.winchatandroid.client.Command
+import top.fumiama.winchatandroid.client.GroupJoinQuit
 import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.databinding.ActivityMainBinding
 import java.io.File
@@ -68,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.fab.setOnClickListener { view ->
+        binding.fab.setOnClickListener {
             val t = layoutInflater.inflate(R.layout.dialog_input, null, false)
             AlertDialog.Builder(this@MainActivity)
                 .setView(t)
@@ -85,15 +87,54 @@ class MainActivity : AppCompatActivity() {
                         data.putInt("id", fromID)
                         data.putString("msg", "create dialog")
                         msg.data = data
-                        msg.sendToTarget()
                         PreferenceManager.getDefaultSharedPreferences(this).edit {
                             putString("name$fromID", info[1])
                             apply()
                         }
+                        msg.sendToTarget()
                     }?:Toast.makeText(this, R.string.toast_invalid_input, Toast.LENGTH_SHORT).show()
                 }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }
                 .show()
+        }
+
+        binding.fab.setOnLongClickListener {
+            val t = layoutInflater.inflate(R.layout.dialog_input, null, false)
+            AlertDialog.Builder(this@MainActivity)
+                .setView(t)
+                .setTitle(R.string.dialog_join_group)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val info = t.diet.text.toString().split(' ')
+                    if(info.size != 2) {
+                        Toast.makeText(this, R.string.toast_invalid_input, Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                    info[0].toIntOrNull()?.let { grpID ->
+                        val msg = Message.obtain(FriendListFragment.friendListFragmentHandler, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
+                        val data = Bundle()
+                        data.putInt("id", grpID)
+                        data.putString("msg", "create dialog")
+                        msg.data = data
+                        PreferenceManager.getDefaultSharedPreferences(this).edit {
+                            putString("name$grpID", "grp ${info[1]}")
+                            apply()
+                        }
+                        msg.sendToTarget()
+                        Thread {
+                            try {
+                                udp?.send(Command(Command.CMD_TYPE_GRP_JOIN, GroupJoinQuit(grpID).marshal()).marshal())
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                mainWeakReference?.get()?.runOnUiThread {
+                                    Toast.makeText(this, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }.start()
+                    }?:Toast.makeText(this, R.string.toast_invalid_input, Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                .show()
+            return@setOnLongClickListener true
         }
     }
 

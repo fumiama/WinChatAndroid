@@ -16,6 +16,7 @@
     <string name="name_me">Me</string>
 
     <string name="dialog_add_user">Add User</string>
+    <string name="dialog_join_group">Join Group</string>
 
     <string name="settings_network">Network</string>
     <string name="settings_server_ep">Server Endpoint</string>
