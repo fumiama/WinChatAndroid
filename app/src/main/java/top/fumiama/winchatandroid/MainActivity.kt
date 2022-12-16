@@ -2,6 +2,7 @@ package top.fumiama.winchatandroid
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Message
@@ -15,18 +16,20 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.navigation.*
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_input.view.*
-import top.fumiama.winchatandroid.LoginFragment.Companion.udp
+import top.fumiama.winchatandroid.FriendListFragment.Companion.user
 import top.fumiama.winchatandroid.client.Command
 import top.fumiama.winchatandroid.client.GroupJoinQuit
 import top.fumiama.winchatandroid.client.TextMessage
 import top.fumiama.winchatandroid.databinding.ActivityMainBinding
 import java.io.File
+import java.io.FileInputStream
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +38,25 @@ class MainActivity : AppCompatActivity() {
     var msgFolder: File? = null
 
     var menuMain: Menu? = null
+
+    val fileSelector = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
+        it.data?.data?.let { uri ->
+            Thread {
+                val inputFile = File(cacheDir, "input")
+                val fd = contentResolver.openFileDescriptor(uri, "r")
+                fd?.fileDescriptor?.let { it ->
+                    val fi = FileInputStream(it)
+                    inputFile.outputStream().let { os ->
+                        fi.copyTo(os)
+                        os.close()
+                    }
+                    fi.close()
+                }
+                fd?.close()
+                ChatFragment.sendFileCallBack(inputFile)
+            }.start()
+        }
+    }
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -122,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                         msg.sendToTarget()
                         Thread {
                             try {
-                                udp?.send(Command(Command.CMD_TYPE_GRP_JOIN, GroupJoinQuit(grpID).marshal()).marshal())
+                                user?.udp?.send(Command(Command.CMD_TYPE_GRP_JOIN, GroupJoinQuit(grpID).marshal()).marshal())
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 mainWeakReference?.get()?.runOnUiThread {

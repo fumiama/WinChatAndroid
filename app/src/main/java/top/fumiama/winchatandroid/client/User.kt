@@ -9,6 +9,7 @@ import java.nio.ByteOrder
 import kotlin.experimental.and
 
 class User(val name: String, private val pwd: String) {
+    var udp: UDP? = null
     private var id = 0
     private fun challenge(poly: UInt) = CRC32(poly.toInt()).crc32(pwd).toUInt()
 
@@ -57,13 +58,13 @@ class User(val name: String, private val pwd: String) {
         if (cmd.typ != CMD_TYPE_LOGIN) return 0 // invalid type
         if (cmd.data[0].toInt() != 3) return 0 // msg: 3: login_success, others: invalid
         id = ByteBuffer.wrap(cmd.data, 1, 4).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().int
+        udp = s
         return id
     }
 
-    fun getCommand(s: UDP): Command? {
+    fun getCommand(): Command? {
         if(id == 0) return null
         val b = ByteArray(2048)
-        s.recv(b)
-        return Command(b)
+        return udp?.recv(b)?.let { Command(b) }
     }
 }

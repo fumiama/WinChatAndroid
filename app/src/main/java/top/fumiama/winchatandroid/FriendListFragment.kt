@@ -17,7 +17,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_friendlist.*
-import top.fumiama.winchatandroid.LoginFragment.Companion.udp
 import top.fumiama.winchatandroid.client.Command
 import top.fumiama.winchatandroid.client.GroupJoinQuit
 import top.fumiama.winchatandroid.client.User
@@ -171,7 +170,7 @@ class FriendListFragment : Fragment() {
                             pref?.getString("name$id", "N/A")?.let {
                                 if(it.startsWith("grp ")) Thread {
                                     try {
-                                        udp?.apply {
+                                        user?.udp?.apply {
                                             send(Command(Command.CMD_TYPE_GRP_QUIT, GroupJoinQuit(id).marshal()).marshal())
                                         }
                                     } catch (e: Exception) {

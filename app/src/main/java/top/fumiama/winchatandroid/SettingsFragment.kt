@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import top.fumiama.winchatandroid.net.TCP
 import top.fumiama.winchatandroid.net.UDP
 import java.net.URI
 
@@ -33,6 +34,12 @@ class SettingsFragment: PreferenceFragmentCompat() {
                     }
                 }
             return ep!!
+        }
+        fun getTCP(context: Context, port: Short) = PreferenceManager.getDefaultSharedPreferences(context).getString("settings_server_ep", null)?.let { s ->
+            URI("my://$s").parseServerAuthority()?.let {
+                Log.d("MySF", "tcp: get host: ${it.host}, port: ${it.port}")
+                TCP(it.host, port.toInt())
+            }
         }
     }
 }

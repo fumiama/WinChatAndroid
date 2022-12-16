@@ -10,16 +10,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import top.fumiama.winchatandroid.ChatFragment.Companion.chatFragmentHandler
 import top.fumiama.winchatandroid.FriendListFragment.Companion.friendListFragmentHandler
 import top.fumiama.winchatandroid.MainActivity.Companion.mainWeakReference
-import top.fumiama.winchatandroid.client.Command
+import top.fumiama.winchatandroid.client.*
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_JOIN
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_QUIT
+import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_BIN_ACK
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
-import top.fumiama.winchatandroid.client.GroupJoinQuitReply
-import top.fumiama.winchatandroid.client.TextMessage
-import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
 import top.fumiama.winchatandroid.net.UDP
 import java.io.File
@@ -59,11 +58,10 @@ class LoginFragment : Fragment() {
             binding.flsld.visibility = View.VISIBLE
             Thread {
                 context?.let { ctx ->
-                    udp = SettingsFragment.getUDP(ctx)
-                    if(udp == null) return@Thread
+                    val udp = SettingsFragment.getUDP(ctx)
                     try {
                         FriendListFragment.user = User(binding.flitun.text.toString(), binding.flitpwd.text.toString()).let {
-                            it.login(udp!!)
+                            it.login(udp)
                             it
                         }
                     } catch (e: Exception) {
@@ -79,7 +77,7 @@ class LoginFragment : Fragment() {
                     val msgFolder = mainWeakReference?.get()?.msgFolder ?: return@Thread
                     while (FriendListFragment.user != null && FriendListFragment.user!!.userID() != 0) {
                         FriendListFragment.user?.let userLet@ { user ->
-                            user.getCommand(udp!!)?.let cmdLet@ { cmd ->
+                            user.getCommand()?.let cmdLet@ { cmd ->
                                 Log.d("MyLF", "received msg type: ${cmd.typ.typ}")
                                 when(cmd.typ) {
                                     CMD_TYPE_MSG_TXT -> {
@@ -137,6 +135,55 @@ class LoginFragment : Fragment() {
                                             Toast.makeText(context, "Quit group ${re.grpID} succeeded", Toast.LENGTH_SHORT).show()
                                         }
                                     }
+                                    CMD_TYPE_MSG_BIN_ACK -> {
+                                        val ack = BinAckMessage(cmd.data)
+                                        if(ack.port.toInt() == 0) {
+                                            mainWeakReference?.get()?.runOnUiThread {
+                                                Toast.makeText(context, "Send file failed: sever refused", Toast.LENGTH_SHORT).show()
+                                            }
+                                            return@userLet
+                                        }
+                                        context?.let { ctx ->
+                                            PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64${ack.crc64}", "no name")?.let { name ->
+                                                SettingsFragment.getTCP(ctx, ack.port)?.let { tcp ->
+                                                    mainWeakReference?.get()?.cacheDir?.let { c ->
+                                                        File(c, "crc64${ack.crc64}").let { f ->
+                                                            if (!f.exists()) {
+                                                                mainWeakReference?.get()?.runOnUiThread {
+                                                                    Toast.makeText(context, "Send file failed: file not found", Toast.LENGTH_SHORT).show()
+                                                                }
+                                                                return@userLet
+                                                            }
+                                                            Thread tcpThread@ {
+                                                                try {
+                                                                    tcp.send(f, ack.crc64)
+                                                                    val b = tcp.recv()
+                                                                    if (b[8].toInt() != 0) {
+                                                                        mainWeakReference?.get()?.runOnUiThread {
+                                                                            Toast.makeText(context, "Send file failed: server error", Toast.LENGTH_SHORT).show()
+                                                                        }
+                                                                        return@tcpThread
+                                                                    }
+                                                                    val data = Bundle()
+                                                                    data.putLong("crc64", ack.crc64)
+                                                                    chatFragmentHandler?.let {
+                                                                        val msgChat = Message.obtain(it, ChatFragmentHandler.CHAT_F_MSG_INSERT_TO_FILE)
+                                                                        msgChat.data = data
+                                                                        msgChat.sendToTarget()
+                                                                    }
+                                                                } catch (e: Exception) {
+                                                                    e.printStackTrace()
+                                                                    mainWeakReference?.get()?.runOnUiThread {
+                                                                        Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                }
+                                                            }.start()
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     else -> {}
                                 }
                             }
@@ -150,9 +197,5 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        var udp: UDP? = null
     }
 }
