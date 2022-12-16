@@ -27,15 +27,15 @@
 
 ### 聊天
 
-![fragment chat](https://user-images.githubusercontent.com/41315874/202401526-ed8b9a92-db3e-4068-9512-0265b98c9352.png)
+![fragment chat](https://user-images.githubusercontent.com/41315874/208007355-4126540a-852a-43fc-bd17-585cb15590ed.png)
 
+### 导航流程图
+
+![nav_graph](https://user-images.githubusercontent.com/41315874/208007643-832efb49-2c2e-4917-a0b7-e327a390ea25.png)
 
 ## 目前实现的功能
 
-### 登陆
-
-> 交互报文如下
-
+登陆、发送文本消息
 
 ## 协议介绍
 
