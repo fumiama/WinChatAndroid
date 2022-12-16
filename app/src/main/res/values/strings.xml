@@ -11,8 +11,11 @@
     <string name="choice_title">Choose Action</string>
 
     <string name="toast_ID_copied">ID copied</string>
+    <string name="toast_invalid_input">Invalid Input</string>
 
     <string name="name_me">Me</string>
+
+    <string name="dialog_add_user">Add User</string>
 
     <string name="settings_network">Network</string>
     <string name="settings_server_ep">Server Endpoint</string>

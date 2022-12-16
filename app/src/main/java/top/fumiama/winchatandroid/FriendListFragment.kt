@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.fragment_friendlist.*
 import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentFriendlistBinding
 import top.fumiama.winchatandroid.ui.FriendListViewHolder
+import java.io.File
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -70,6 +71,7 @@ class FriendListFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         ad = null
+        friendListFragmentHandler = null
     }
 
     fun insertRow(b: Bundle) {
@@ -78,7 +80,7 @@ class FriendListFragment : Fragment() {
         Log.d("MyFLF", "id: $id, msg: $msg")
         pref?.getString(id.toString(), "")?.let { dataStr ->
             if(dataStr == "" || ad?.idDataMap?.containsKey(id) != true) { // new msg
-                val data = arrayOf("匿名", msg, "1")
+                val data = arrayOf(pref?.getString("name$id", "匿名")?:"匿名", msg, "1")
                 Log.d("MyFLF", "is new message, data: ${data[0]}\n" +
                         "${data[1]}\n" +
                         data[2]
@@ -159,6 +161,9 @@ class FriendListFragment : Fragment() {
                                 idDataMap.remove(id)
                                 remove(id)
                                 Log.d("MyFLF", "removed ad of id $id")
+                            }
+                            MainActivity.mainWeakReference?.get()?.msgFolder?.apply {
+                                File(this, "$id").delete()
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()

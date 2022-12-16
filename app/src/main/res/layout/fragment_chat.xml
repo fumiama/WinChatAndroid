@@ -5,12 +5,18 @@
     android:layout_height="match_parent"
     tools:context=".ChatFragment">
 
-    <LinearLayout
-        android:id="@+id/cfl"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/fcf"
-        android:orientation="vertical" />
+        android:layout_above="@id/fcf">
+
+        <LinearLayout
+            android:id="@+id/cfl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/fcf"
+            android:orientation="vertical" />
+    </androidx.core.widget.NestedScrollView>
 
     <FrameLayout
         android:id="@+id/fcf"
@@ -32,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
+                android:focusedByDefault="true"
                 android:hint="Message"
                 android:inputType="textNoSuggestions|textMultiLine"
                 android:maxLines="3"
@@ -40,14 +47,15 @@
                 android:paddingTop="8dp"
                 android:paddingRight="15dp"
                 android:paddingBottom="8dp"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="15sp" />
 
             <Button
                 android:id="@+id/fcbsnd"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginEnd="15dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/ic_send_black_24dp" />
         </LinearLayout>
 

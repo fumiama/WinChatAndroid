@@ -1,6 +1,7 @@
 package top.fumiama.winchatandroid
 
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -70,23 +71,44 @@ class ChatFragment : Fragment() {
                     }
                 }
             }
+        }
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        chatFragmentHandler = ChatFragmentHandler(this, Looper.myLooper()!!)
+        arguments?.apply {
+            val fromID = getInt("id", 0)
             binding.fcbsnd.setOnClickListener {
+                Log.d("MyCF", "msg to send: ${binding.fctmsg.text}")
                 if(binding.fctmsg.text.isEmpty()) return@setOnClickListener
                 try {
                     FriendListFragment.user?.apply {
                         val d = Command(CMD_TYPE_MSG_TXT, TextMessage(userID(), fromID, binding.fctmsg.text.toString()).marshal()).marshal()
-                        udp?.send(d)
+                        Thread {
+                            try {
+                                udp?.send(d)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                mainWeakReference?.get()?.runOnUiThread {
+                                    Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }.start()
                         mainWeakReference?.get()?.msgFolder?.apply {
                             File(this, "$fromID").apply {
                                 if(!exists()) createNewFile()
                                 appendBytes(d)
                             }
+                            Log.d("MyCF", "write msg to file")
                         }
-                        val line = inflater.inflate(R.layout.to_message, binding.cfl, false)
+                        val line = layoutInflater.inflate(R.layout.to_message, binding.cfl, false)
                         line.tol.toUsernameGroup.toUsername.setText(R.string.name_me)
                         line.tol.toMessage.text = binding.fctmsg.text
                         line.tol.toUsernameGroup.icon_fb2.setBackgroundResource(R.drawable.ic_girl_pic)
                         binding.cfl.addView(line)
+                        Log.d("MyCF", "inflate line")
                         binding.fctmsg.text.clear()
                     }?:mainWeakReference?.get()?.runOnUiThread {
                         Toast.makeText(context, "Please Login First", Toast.LENGTH_SHORT).show()
@@ -99,11 +121,25 @@ class ChatFragment : Fragment() {
                 }
             }
         }
-        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        chatFragmentHandler = null
+    }
+
+    fun insertFromMessage(bundle: Bundle) {
+        val fromID = bundle.getInt("id", 0)
+        if(fromID != arguments?.getInt("id", -1)) return
+        val line = layoutInflater.inflate(R.layout.from_message, binding.cfl, false)
+        line.frl.fromUsernameGroup.fromUsername.text = fromID.toString()
+        line.frl.fromMessage.text = bundle.getString("msg", "N/A")
+        line.frl.fromUsernameGroup.icon_fb1.setBackgroundResource(R.drawable.ic_girlz_pic)
+        binding.cfl.addView(line)
+    }
+
+    companion object {
+        var chatFragmentHandler: ChatFragmentHandler? = null
     }
 }

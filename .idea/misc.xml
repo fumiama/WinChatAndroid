@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-anydpi/bg_dere.xml" value="0.2175" />
+        <entry key="app/src/main/res/drawable-anydpi/bg_rnd.xml" value="0.5025" />
+        <entry key="app/src/main/res/drawable-anydpi/bubble_from.xml" value="0.5025" />
+        <entry key="app/src/main/res/drawable-anydpi/bubble_to.xml" value="0.5025" />
+        <entry key="app/src/main/res/drawable-anydpi/editext_bg_chat.xml" value="0.5025" />
         <entry key="app/src/main/res/drawable-anydpi/ic_girl.xml" value="0.2175" />
         <entry key="app/src/main/res/drawable-anydpi/ic_girlz.xml" value="0.2175" />
         <entry key="app/src/main/res/drawable/bg_dere.xml" value="0.5025" />
@@ -20,7 +24,8 @@
         <entry key="app/src/main/res/drawable/ic_send_black_24dp.xml" value="0.4805" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.5076992753623188" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.5076992753623188" />
-        <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.5217391304347826" />
+        <entry key="app/src/main/res/layout/dialog_input.xml" value="0.5395833333333333" />
+        <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.4035964035964036" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.5076992753623188" />
         <entry key="app/src/main/res/layout/fragment_friendlist.xml" value="0.5395833333333333" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.5395833333333333" />
