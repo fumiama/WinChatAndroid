@@ -27,7 +27,9 @@
 
 ### 聊天
 
-![fragment chat](https://user-images.githubusercontent.com/41315874/202401526-ed8b9a92-db3e-4068-9512-0265b98c9352.png)
+![fragment chat_dark](https://user-images.githubusercontent.com/41315874/208019470-6305915a-c945-41d5-94f7-c395428f122e.jpg)
+![fragment chat_light](https://user-images.githubusercontent.com/41315874/208019480-ad12c68b-b8b9-4e30-9798-eae275ad10dc.png)
+
 
 ### 导航流程图
 
