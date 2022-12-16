@@ -11,7 +11,7 @@ import java.io.IOException;
  * Generates a crc32 checksum for a given string or byte array
  */
 public class CRC64 {
-    private final static long polynomial = 0x4C11DB74C11DB7L;
+    private final static long polynomial = 0xC96C5795D7870F42L;
 
     public CRC64() {}
 

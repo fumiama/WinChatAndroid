@@ -8,6 +8,6 @@ import top.fumiama.winchatandroid.crc.CRC64
 class CRC64UnitTest {
     @Test
     fun crc64_isCorrect() {
-        assertEquals(8758698730011237488, CRC64().crc64("i am wkk"))
+        assertEquals(6041734696013038506, CRC64().crc64("i am wkk"))
     }
 }
