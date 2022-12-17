@@ -24,8 +24,17 @@
 ### 聊天列表行
 
 ![line chat](https://user-images.githubusercontent.com/41315874/208007355-4126540a-852a-43fc-bd17-585cb15590ed.png)
-![line chat_running](https://user-images.githubusercontent.com/41315874/208019682-e759b620-6cf1-425f-a80d-b0c45eca9b7f.jpg)
 
+<table>
+	<tr>
+		<td align="center"><img src="https://user-images.githubusercontent.com/41315874/208019682-e759b620-6cf1-425f-a80d-b0c45eca9b7f.jpg"></td>
+		<td align="center"><img src="https://user-images.githubusercontent.com/41315874/208229884-77a39145-661d-404b-8aa6-03b23597c8b8.png"></td>
+	</tr>
+    <tr>
+		<td align="center">深色模式</td>
+		<td align="center">浅色模式</td>
+	</tr>
+</table>
 
 ### 聊天
 
@@ -42,7 +51,7 @@
 
 ### 导航流程图
 
-![nav_graph](https://user-images.githubusercontent.com/41315874/208007643-832efb49-2c2e-4917-a0b7-e327a390ea25.png)
+![nav_graph](https://user-images.githubusercontent.com/41315874/208229916-23c4979e-b586-4d1a-92a4-5af7023ee2e9.png)
 
 ## 目前实现的功能
 
