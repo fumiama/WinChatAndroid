@@ -6,13 +6,13 @@ import java.nio.ByteOrder
 class GroupList(var typ: Byte, var groupID: Int, var items: Array<GroupListItem>) {
     constructor(data: ByteArray): this(
         data[0],
-        ByteBuffer.wrap(data, 1, 4).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().int,
+        ByteBuffer.wrap(data, 1, 4).asReadOnlyBuffer().int,
         data.let {
-            val len = ByteBuffer.wrap(data, 5, 2).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().short
+            val len = ByteBuffer.wrap(data, 5, 2).asReadOnlyBuffer().short
             var items = arrayOf<GroupListItem>()
             var p = 0
             for(i in 0 until len) {
-                val dataLen = 8+2+ByteBuffer.wrap(data, p+8, 2).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().short.toInt()
+                val dataLen = 8+2+ByteBuffer.wrap(data, p+8, 2).asReadOnlyBuffer().short.toInt()
                 items += GroupListItem(data.copyOfRange(p, p+dataLen))
                 p += dataLen
             }
@@ -25,7 +25,7 @@ class GroupList(var typ: Byte, var groupID: Int, var items: Array<GroupListItem>
             totalSize += 8+2+it.name.length
         }
         val b = ByteArray(totalSize)
-        ByteBuffer.wrap(b, 0, 1+4+2).order(ByteOrder.BIG_ENDIAN)
+        ByteBuffer.wrap(b, 0, 1+4+2)
             .put(typ)
             .putInt(groupID)
             .putShort(items.size.toShort())

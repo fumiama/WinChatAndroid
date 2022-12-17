@@ -13,11 +13,15 @@ class ChatFragmentHandler(fragment: ChatFragment, looper: Looper): Handler(loope
         when(msg.what) {
             CHAT_F_MSG_INSERT_FROM_MSG -> weakF.get()?.insertFromMessage(msg.data)
             CHAT_F_MSG_INSERT_TO_FILE -> weakF.get()?.insertToFile(msg.data)
+            CHAT_F_NAV_TO_FILE_F -> weakF.get()?.navigate2file()
+            CHAT_F_NAV_TO_MEMBER_F -> weakF.get()?.navigate2members()
         }
     }
 
     companion object {
         const val CHAT_F_MSG_INSERT_FROM_MSG = 1
         const val CHAT_F_MSG_INSERT_TO_FILE = 2
+        const val CHAT_F_NAV_TO_FILE_F = 3
+        const val CHAT_F_NAV_TO_MEMBER_F = 4
     }
 }

@@ -16,11 +16,13 @@ import top.fumiama.winchatandroid.FriendListFragment.Companion.friendListFragmen
 import top.fumiama.winchatandroid.MainActivity.Companion.mainWeakReference
 import top.fumiama.winchatandroid.client.*
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_JOIN
+import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_LST
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_QUIT
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_BIN_ACK
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
 import top.fumiama.winchatandroid.net.UDP
+import top.fumiama.winchatandroid.ui.GroupListFragment.Companion.groupListFragmentAdapterWeakReference
 import java.io.File
 import java.nio.ByteBuffer
 
@@ -71,9 +73,11 @@ class LoginFragment : Fragment() {
                             Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                         }
                     }
-                    if (FriendListFragment.user != null && FriendListFragment.user!!.userID() != 0) mainWeakReference?.get()?.runOnUiThread {
-                        findNavController().popBackStack()
-                        Toast.makeText(context, "登录成功, ID: ${FriendListFragment.user!!.userID()}", Toast.LENGTH_SHORT).show()
+                    if (FriendListFragment.user != null && FriendListFragment.user!!.userID() != 0) mainWeakReference?.get()?.apply {
+                        runOnUiThread {
+                            findNavController().popBackStack()
+                            Toast.makeText(context, String.format(getString(R.string.toast_login_success), FriendListFragment.user!!.userID()), Toast.LENGTH_SHORT).show()
+                        }
                     }
                     val msgFolder = mainWeakReference?.get()?.msgFolder ?: return@Thread
                     while (FriendListFragment.user != null && FriendListFragment.user!!.userID() != 0) {
@@ -113,8 +117,10 @@ class LoginFragment : Fragment() {
                                     CMD_TYPE_GRP_JOIN -> {
                                         val re = GroupJoinQuitReply(cmd.data)
                                         if(re.msg.toInt() != 0) {
-                                            mainWeakReference?.get()?.runOnUiThread {
-                                                Toast.makeText(context, "Join group ${re.grpID} failed", Toast.LENGTH_SHORT).show()
+                                            mainWeakReference?.get()?.apply {
+                                                runOnUiThread {
+                                                    Toast.makeText(context, String.format(getString(R.string.toast_join_group_failed), re.grpID), Toast.LENGTH_SHORT).show()
+                                                }
                                             }
                                             return@userLet
                                         }
@@ -129,60 +135,73 @@ class LoginFragment : Fragment() {
                                     }
                                     CMD_TYPE_GRP_QUIT -> {
                                         val re = GroupJoinQuitReply(cmd.data)
-                                        if(re.msg.toInt() != 0) mainWeakReference?.get()?.runOnUiThread {
-                                            Toast.makeText(context, "Quit group ${re.grpID} failed", Toast.LENGTH_SHORT).show()
+                                        if(re.msg.toInt() != 0) mainWeakReference?.get()?.apply {
+                                            runOnUiThread {
+                                                Toast.makeText(context, String.format(getString(R.string.toast_quit_group_failed), re.grpID), Toast.LENGTH_SHORT).show()
+                                            }
                                         }
-                                        else mainWeakReference?.get()?.runOnUiThread {
-                                            Toast.makeText(context, "Quit group ${re.grpID} succeeded", Toast.LENGTH_SHORT).show()
+                                        else mainWeakReference?.get()?.apply {
+                                            runOnUiThread {
+                                                Toast.makeText(context, String.format(getString(R.string.toast_quit_group_success), re.grpID), Toast.LENGTH_SHORT).show()
+                                            }
                                         }
                                     }
                                     CMD_TYPE_MSG_BIN_ACK -> {
                                         val ack = BinAckMessage(cmd.data)
                                         if(ack.port.toInt() == 0) {
                                             mainWeakReference?.get()?.runOnUiThread {
-                                                Toast.makeText(context, "Send file failed: sever refused", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, R.string.toast_send_file_failed_server_refused, Toast.LENGTH_SHORT).show()
                                             }
                                             return@userLet
                                         }
                                         context?.let { ctx ->
-                                            PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64${ack.crc64}", "no name")?.let { name ->
-                                                SettingsFragment.getTCP(ctx, ack.port)?.let { tcp ->
-                                                    mainWeakReference?.get()?.cacheDir?.let { c ->
-                                                        File(c, "crc64${ack.crc64}").let { f ->
-                                                            if (!f.exists()) {
-                                                                mainWeakReference?.get()?.runOnUiThread {
-                                                                    Toast.makeText(context, "Send file failed: file not found", Toast.LENGTH_SHORT).show()
-                                                                }
-                                                                return@userLet
+                                            SettingsFragment.getTCP(ctx, ack.port)?.let { tcp ->
+                                                mainWeakReference?.get()?.cacheDir?.let { c ->
+                                                    File(c, "crc64${ack.crc64}").let { f ->
+                                                        if (!f.exists()) {
+                                                            mainWeakReference?.get()?.runOnUiThread {
+                                                                Toast.makeText(context, R.string.toast_send_file_failed_file_not_found, Toast.LENGTH_SHORT).show()
                                                             }
-                                                            Thread tcpThread@ {
-                                                                try {
-                                                                    tcp.send(f, ack.crc64)
-                                                                    val b = tcp.recv()
-                                                                    if (ByteBuffer.wrap(b, 0, 8).asReadOnlyBuffer().long != ack.crc64 || b[8].toInt() != 0) {
-                                                                        mainWeakReference?.get()?.runOnUiThread {
-                                                                            Toast.makeText(context, "Send file failed: server error", Toast.LENGTH_SHORT).show()
-                                                                        }
-                                                                        return@tcpThread
-                                                                    }
-                                                                    val data = Bundle()
-                                                                    data.putLong("crc64", ack.crc64)
-                                                                    chatFragmentHandler?.let {
-                                                                        val msgChat = Message.obtain(it, ChatFragmentHandler.CHAT_F_MSG_INSERT_TO_FILE)
-                                                                        msgChat.data = data
-                                                                        msgChat.sendToTarget()
-                                                                    }
-                                                                } catch (e: Exception) {
-                                                                    e.printStackTrace()
-                                                                    mainWeakReference?.get()?.runOnUiThread {
-                                                                        Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
-                                                                    }
-                                                                }
-                                                            }.start()
+                                                            return@userLet
                                                         }
+                                                        Thread tcpThread@ {
+                                                            try {
+                                                                tcp.send(f, ack.crc64)
+                                                                val b = tcp.recv()
+                                                                if (ByteBuffer.wrap(b, 0, 8).asReadOnlyBuffer().long != ack.crc64 || b[8].toInt() != 0) {
+                                                                    mainWeakReference?.get()?.runOnUiThread {
+                                                                        Toast.makeText(context, R.string.toast_send_file_failed_server_error, Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                    return@tcpThread
+                                                                }
+                                                                val data = Bundle()
+                                                                data.putLong("crc64", ack.crc64)
+                                                                chatFragmentHandler?.let {
+                                                                    val msgChat = Message.obtain(it, ChatFragmentHandler.CHAT_F_MSG_INSERT_TO_FILE)
+                                                                    msgChat.data = data
+                                                                    msgChat.sendToTarget()
+                                                                }
+                                                            } catch (e: Exception) {
+                                                                e.printStackTrace()
+                                                                mainWeakReference?.get()?.runOnUiThread {
+                                                                    Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                                                }
+                                                            }
+                                                        }.start()
                                                     }
                                                 }
                                             }
+                                        }
+                                    }
+                                    CMD_TYPE_GRP_LST -> {
+                                        val grpList = GroupList(cmd.data)
+                                        var count = 1
+                                        groupListFragmentAdapterWeakReference?.get()?.let { ad ->
+                                            grpList.items.forEach {
+                                                ad.idDataMap[count] = arrayOf(it.name, it.idOrCrc64.toString(), "0")
+                                                count++
+                                            }
+                                            ad.refresh()
                                         }
                                     }
                                     else -> {}

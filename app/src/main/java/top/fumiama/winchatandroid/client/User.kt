@@ -33,7 +33,7 @@ class User(val name: String, private val pwd: String) {
         if (cmd.data[0].toInt() != 1) return 0 // msg: 1: challenge, others: invalid
         val n = cmd.data[1].toInt().and(0xff)
         val bitslen = n/8 + if (n%8>0) 1 else 0
-        val bits = ByteBuffer.wrap(cmd.data, 2+bitslen, cmd.data.size-2-bitslen).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer()
+        val bits = ByteBuffer.wrap(cmd.data, 2+bitslen, cmd.data.size-2-bitslen).asReadOnlyBuffer()
         var sum = 0u
         var c = 0
         out_for@for (i in 0 until bitslen) {
@@ -50,14 +50,14 @@ class User(val name: String, private val pwd: String) {
         sum = challenge(sum)
         Log.d("MyUser", "ack sum: $sum")
         b[0] = 1 // msg: challenge_ack
-        ByteBuffer.wrap(b, 1, 4).order(ByteOrder.BIG_ENDIAN).putInt(sum.toInt())
+        ByteBuffer.wrap(b, 1, 4).putInt(sum.toInt())
         s.send(Command(CMD_TYPE_LOGIN, b).marshal(1+4))
         b[0] = 0
         s.recv(b)
         cmd = Command(b)
         if (cmd.typ != CMD_TYPE_LOGIN) return 0 // invalid type
         if (cmd.data[0].toInt() != 3) return 0 // msg: 3: login_success, others: invalid
-        id = ByteBuffer.wrap(cmd.data, 1, 4).order(ByteOrder.BIG_ENDIAN).asReadOnlyBuffer().int
+        id = ByteBuffer.wrap(cmd.data, 1, 4).asReadOnlyBuffer().int
         udp = s
         return id
     }

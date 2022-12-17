@@ -82,13 +82,31 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            if(destination.id == R.id.FriendListFragment) {
-                fab.visibility = View.VISIBLE
-                menuMain?.findItem(R.id.action_settings)?.isVisible = true
-            }
-            else {
-                fab.visibility = View.GONE
-                menuMain?.findItem(R.id.action_settings)?.isVisible = false
+            when (destination.id) {
+                R.id.FriendListFragment -> {
+                    fab.visibility = View.VISIBLE
+                    menuMain?.apply {
+                        findItem(R.id.action_settings)?.isVisible = true
+                        findItem(R.id.action_group_members)?.isVisible = false
+                        findItem(R.id.action_group_file)?.isVisible = false
+                    }
+                }
+                R.id.ChatFragment -> {
+                    fab.visibility = View.GONE
+                    menuMain?.apply {
+                        findItem(R.id.action_settings)?.isVisible = false
+                        findItem(R.id.action_group_members)?.isVisible = true
+                        findItem(R.id.action_group_file)?.isVisible = true
+                    }
+                }
+                else -> {
+                    fab.visibility = View.GONE
+                    menuMain?.apply {
+                        findItem(R.id.action_settings)?.isVisible = false
+                        findItem(R.id.action_group_members)?.isVisible = false
+                        findItem(R.id.action_group_file)?.isVisible = false
+                    }
+                }
             }
         }
 
@@ -168,14 +186,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> {
-                val navController = findNavController(R.id.nav_host_fragment_content_main)
                 when(navController.currentDestination?.id) {
                     R.id.FriendListFragment -> navController.navigate(R.id.action_FriendListFragment_to_SettingsFragment)
+                }
+                true
+            }
+            R.id.action_group_file -> {
+                when(navController.currentDestination?.id) {
+                    R.id.ChatFragment -> ChatFragment.chatFragmentHandler?.sendEmptyMessage(ChatFragmentHandler.CHAT_F_NAV_TO_FILE_F)
+                }
+                true
+            }
+            R.id.action_group_members -> {
+                when(navController.currentDestination?.id) {
+                    R.id.ChatFragment -> ChatFragment.chatFragmentHandler?.sendEmptyMessage(ChatFragmentHandler.CHAT_F_NAV_TO_MEMBER_F)
                 }
                 true
             }

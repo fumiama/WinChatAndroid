@@ -15,7 +15,7 @@ class Command(var typ: CommandType, var data: ByteArray) {
         7 -> CMD_TYPE_BIN_GET
         8 -> CMD_TYPE_GRP_LST
         else -> throw IndexOutOfBoundsException("Type")
-    }, data.copyOfRange(3, 3+ByteBuffer.wrap(data, 1, 2).order(ByteOrder.BIG_ENDIAN).short.toInt()))
+    }, data.copyOfRange(3, 3+ByteBuffer.wrap(data, 1, 2).short.toInt()))
     val length get() = 3+data.size
     fun marshal(): ByteArray {
         val d = ByteArray(3+data.size)

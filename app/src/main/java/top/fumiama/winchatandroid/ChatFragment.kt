@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.edit
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.from_message.view.*
@@ -44,7 +45,7 @@ class ChatFragment : Fragment() {
         arguments?.apply {
             val fromID = getInt("id", 0)
             val count = getInt("count", 0)
-            getString("name", "匿名")?.let { name ->
+            getString("name", mainWeakReference?.get()?.getString(R.string.name_anonymous))?.let { name ->
                 mainWeakReference?.get()?.apply {
                     runOnUiThread { toolbar?.title = name }
                 }
@@ -80,7 +81,7 @@ class ChatFragment : Fragment() {
                                 context?.let { ctx ->
                                     if(binMsg.fromID == fromID) {
                                         line.frl.fromUsernameGroup.fromUsername.text = name
-                                        line.frl.fromMessage.text = PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name${binMsg.crc64}", null)?:"N/A"
+                                        line.frl.fromMessage.text = PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name${binMsg.crc64}", null)?:mainWeakReference?.get()?.getString(R.string.filename_unknown)
                                         line.frl.fromUsernameGroup.icon_fb1.setBackgroundResource(R.drawable.ic_girlz_pic)
                                         line.frl.fromMessage.setOnClickListener {
                                             mainWeakReference?.get()?.runOnUiThread {
@@ -89,7 +90,7 @@ class ChatFragment : Fragment() {
                                         }
                                     } else {
                                         line.tol.toUsernameGroup.toUsername.setText(R.string.name_me)
-                                        line.tol.toMessage.text = PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name${binMsg.crc64}", null)?:"N/A"
+                                        line.tol.toMessage.text = PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name${binMsg.crc64}", null)?:mainWeakReference?.get()?.getString(R.string.filename_unknown)
                                         line.tol.toUsernameGroup.icon_fb2.setBackgroundResource(R.drawable.ic_girl_pic)
                                         line.tol.toMessage.setOnClickListener {
 
@@ -144,7 +145,7 @@ class ChatFragment : Fragment() {
                         Log.d("MyCF", "inflate line")
                         binding.fctmsg.text.clear()
                     }?:mainWeakReference?.get()?.runOnUiThread {
-                        Toast.makeText(context, "Please Login First", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.toast_login, Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -156,7 +157,7 @@ class ChatFragment : Fragment() {
             binding.fcbsnd.setOnLongClickListener {
                 if(user == null) {
                     mainWeakReference?.get()?.runOnUiThread {
-                        Toast.makeText(context, "Please Login First", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.toast_login, Toast.LENGTH_SHORT).show()
                     }
                     return@setOnLongClickListener true
                 }
@@ -185,7 +186,7 @@ class ChatFragment : Fragment() {
                         }
                         val line = layoutInflater.inflate(R.layout.to_message, binding.cfl, false)
                         line.tol.toUsernameGroup.toUsername.setText(R.string.name_me)
-                        line.tol.toMessage.text = name?:"null"
+                        line.tol.toMessage.text = name?:mainWeakReference?.get()?.getString(R.string.filename_unknown)
                         line.tol.toUsernameGroup.icon_fb2.setBackgroundResource(R.drawable.ic_girl_pic)
                         mainWeakReference?.get()?.runOnUiThread {
                             binding.cfl.addView(line)
@@ -216,7 +217,7 @@ class ChatFragment : Fragment() {
         if(fromID != arguments?.getInt("id", -1)) return
         val line = layoutInflater.inflate(R.layout.from_message, binding.cfl, false)
         line.frl.fromUsernameGroup.fromUsername.text = fromID.toString()
-        line.frl.fromMessage.text = bundle.getString("msg", "N/A")
+        line.frl.fromMessage.text = bundle.getString("msg", mainWeakReference?.get()?.getString(R.string.filename_unknown))
         line.frl.fromUsernameGroup.icon_fb1.setBackgroundResource(R.drawable.ic_girlz_pic)
         binding.cfl.addView(line)
     }
@@ -224,7 +225,7 @@ class ChatFragment : Fragment() {
     fun insertToFile(bundle: Bundle) {
         val crc64 = bundle.getLong("crc64", 0)
         context?.let { ctx ->
-            (PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name$crc64", null)?:"N/A").let { name ->
+            (PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name$crc64", null)?:mainWeakReference?.get()?.getString(R.string.filename_unknown))?.let { name ->
                 val line = layoutInflater.inflate(R.layout.to_message, binding.cfl, false)
                 line.tol.toUsernameGroup.toUsername.setText(R.string.name_me)
                 line.tol.toMessage.text = name
@@ -234,8 +235,40 @@ class ChatFragment : Fragment() {
         }
     }
 
+    fun navigate2file() {
+        if(user == null) {
+            Toast.makeText(context, R.string.toast_login, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (arguments?.getString("name")?.startsWith("grp ") != true) {
+            Toast.makeText(context, R.string.toast_invalid_group, Toast.LENGTH_SHORT).show()
+            return
+        }
+        arguments?.getInt("id")?.let {
+            val bundle = Bundle()
+            bundle.putInt("id", it)
+            findNavController().navigate(R.id.action_ChatFragment_to_GroupFileListFragment, bundle)
+        }
+    }
+
+    fun navigate2members() {
+        if(user == null) {
+            Toast.makeText(context, R.string.toast_login, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (arguments?.getString("name")?.startsWith("grp ") != true) {
+            Toast.makeText(context, R.string.toast_invalid_group, Toast.LENGTH_SHORT).show()
+            return
+        }
+        arguments?.getInt("id")?.let {
+            val bundle = Bundle()
+            bundle.putInt("id", it)
+            findNavController().navigate(R.id.action_ChatFragment_to_GroupMembersListFragment, bundle)
+        }
+    }
+
     companion object {
         var chatFragmentHandler: ChatFragmentHandler? = null
-        var sendFileCallBack: (File, String?)->Unit = {_, _ -> }
+        var sendFileCallBack: (File, String?)->Unit = { _, _ -> }
     }
 }

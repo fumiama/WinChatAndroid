@@ -16,12 +16,13 @@ import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_friendlist.*
+import kotlinx.android.synthetic.main.fragment_list.*
+import top.fumiama.winchatandroid.MainActivity.Companion.mainWeakReference
 import top.fumiama.winchatandroid.client.Command
 import top.fumiama.winchatandroid.client.GroupJoinQuit
 import top.fumiama.winchatandroid.client.User
-import top.fumiama.winchatandroid.databinding.FragmentFriendlistBinding
-import top.fumiama.winchatandroid.ui.FriendListViewHolder
+import top.fumiama.winchatandroid.databinding.FragmentListBinding
+import top.fumiama.winchatandroid.ui.ListViewHolder
 import java.io.File
 
 /**
@@ -31,7 +32,7 @@ class FriendListFragment : Fragment() {
 
     private var pref: SharedPreferences? = null
 
-    private var _binding: FragmentFriendlistBinding? = null
+    private var _binding: FragmentListBinding? = null
 
     private var ad: FriendListViewHolderInstance.RecyclerViewAdapter? = null
 
@@ -43,7 +44,7 @@ class FriendListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFriendlistBinding.inflate(inflater, container, false)
+        _binding = FragmentListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -82,7 +83,7 @@ class FriendListFragment : Fragment() {
         Log.d("MyFLF", "id: $id, msg: $msg")
         pref?.getString(id.toString(), "")?.let { dataStr ->
             if(dataStr == "" || ad?.idDataMap?.containsKey(id) != true) { // new msg
-                val data = arrayOf(pref?.getString("name$id", "匿名")?:"匿名", msg, "1")
+                val data = arrayOf(pref?.getString("name$id", mainWeakReference?.get()?.getString(R.string.name_anonymous))!!, msg, "1")
                 Log.d("MyFLF", "is new message, data: ${data[0]}\n" +
                         "${data[1]}\n" +
                         data[2]
@@ -98,7 +99,7 @@ class FriendListFragment : Fragment() {
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                    mainWeakReference?.get()?.runOnUiThread {
                         Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -120,7 +121,7 @@ class FriendListFragment : Fragment() {
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                    mainWeakReference?.get()?.runOnUiThread {
                         Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -128,7 +129,7 @@ class FriendListFragment : Fragment() {
         }
     }
 
-    inner class FriendListViewHolderInstance(itemView: View): FriendListViewHolder(itemView) {
+    inner class FriendListViewHolderInstance(itemView: View): ListViewHolder(itemView) {
         private val onLineClicked = { id: Int, data: Array<String>, v: View ->
             val bundle = Bundle()
             bundle.putInt("id", id)
@@ -144,9 +145,9 @@ class FriendListFragment : Fragment() {
                 .setSingleChoiceItems(ArrayAdapter(context!!, R.layout.line_choice, onLineLongClickedTypes), 0) { d, p ->
                     when(p) {
                         0 -> {
-                            MainActivity.mainWeakReference?.get()?.apply {
+                            mainWeakReference?.get()?.apply {
                                 cm?.apply {
-                                    setPrimaryClip(ClipData.newPlainText(MainActivity.mainWeakReference?.get()?.getString(R.string.app_name)?:"WinChatAndroid", "$id"))
+                                    setPrimaryClip(ClipData.newPlainText(mainWeakReference?.get()?.getString(R.string.app_name)!!, "$id"))
                                     runOnUiThread {
                                         Toast.makeText(context, R.string.toast_ID_copied, Toast.LENGTH_SHORT).show()
                                     }
@@ -164,10 +165,10 @@ class FriendListFragment : Fragment() {
                                 remove(id)
                                 Log.d("MyFLF", "removed ad of id $id")
                             }
-                            MainActivity.mainWeakReference?.get()?.msgFolder?.apply {
+                            mainWeakReference?.get()?.msgFolder?.apply {
                                 File(this, "$id").delete()
                             }
-                            pref?.getString("name$id", "N/A")?.let {
+                            pref?.getString("name$id", mainWeakReference?.get()?.getString(R.string.name_anonymous)!!)?.let {
                                 if(it.startsWith("grp ")) Thread {
                                     try {
                                         user?.udp?.apply {
@@ -175,7 +176,7 @@ class FriendListFragment : Fragment() {
                                         }
                                     } catch (e: Exception) {
                                         e.printStackTrace()
-                                        MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                                        mainWeakReference?.get()?.runOnUiThread {
                                             Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                                         }
                                     }
@@ -183,7 +184,7 @@ class FriendListFragment : Fragment() {
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            MainActivity.mainWeakReference?.get()?.runOnUiThread {
+                            mainWeakReference?.get()?.runOnUiThread {
                                 Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -193,7 +194,7 @@ class FriendListFragment : Fragment() {
                 .show()
             true
         }
-        inner class RecyclerViewAdapter: FriendListViewHolder.RecyclerViewAdapter(onLineClicked, onLineLongClicked) {
+        inner class RecyclerViewAdapter: ListViewHolder.RecyclerViewAdapter(onLineClicked, onLineLongClicked) {
             val idDataMap = hashMapOf<Int, Array<String>>()
             override fun getKeys(): List<Int> {
                 pref?.all?.forEach { e ->

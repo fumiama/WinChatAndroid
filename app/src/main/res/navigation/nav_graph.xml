@@ -9,7 +9,7 @@
         android:id="@+id/FriendListFragment"
         android:name="top.fumiama.winchatandroid.FriendListFragment"
         android:label="@string/friendlist_fragment_label"
-        tools:layout="@layout/fragment_friendlist">
+        tools:layout="@layout/fragment_list">
 
         <action
             android:id="@+id/action_FriendListFragment_to_SettingsFragment"
@@ -63,5 +63,31 @@
         android:name="top.fumiama.winchatandroid.ChatFragment"
         android:label="@string/chat_fragment_label"
         tools:layout="@layout/fragment_chat">
+        <action
+            android:id="@+id/action_ChatFragment_to_GroupFileListFragment"
+            app:destination="@id/GroupFileListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_out_left_exit"
+            app:popExitAnim="@anim/slide_in_right_exit" />
+        <action
+            android:id="@+id/action_ChatFragment_to_GroupMembersListFragment"
+            app:destination="@id/GroupMembersListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_out_left_exit"
+            app:popExitAnim="@anim/slide_in_right_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/GroupFileListFragment"
+        android:name="top.fumiama.winchatandroid.GroupFileListFragment"
+        android:label="@string/group_file_list_fragment_label"
+        tools:layout="@layout/fragment_list">
+    </fragment>
+    <fragment
+        android:id="@+id/GroupMembersListFragment"
+        android:name="top.fumiama.winchatandroid.GroupMembersListFragment"
+        android:label="@string/group_members_list_fragment_label"
+        tools:layout="@layout/fragment_list">
     </fragment>
 </navigation>

@@ -1,9 +1,9 @@
 package top.fumiama.winchatandroid.crc;
-import androidx.annotation.NonNull;
 
+import androidx.annotation.NonNull;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
@@ -39,9 +39,10 @@ public class CRC64 {
         long crc = 0xffffffff_ffffffffL;  // Initial value
         long length = f.length();
         FileInputStream fi = new FileInputStream(f);
+        BufferedInputStream bi = new BufferedInputStream(fi);
         byte[] b = new byte[1];
         while((length--) != 0) {
-            if (fi.read(b) <= 0) break;
+            if (bi.read(b) <= 0) break;
             crc ^= (long)(b[0]) << 56;
             for (int i = 0; i < 8; i++) {
                 if ( (crc & 0x80000000_00000000L ) != 0 )
@@ -50,6 +51,7 @@ public class CRC64 {
                     crc <<= 1;
             }
         }
+        bi.close();
         fi.close();
         return crc;
     }

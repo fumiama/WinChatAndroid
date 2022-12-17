@@ -1,34 +1,32 @@
 package top.fumiama.winchatandroid.ui
 
 import android.annotation.SuppressLint
-import android.content.ClipData
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.line_friend.view.*
 import top.fumiama.winchatandroid.MainActivity.Companion.mainWeakReference
 import top.fumiama.winchatandroid.R
 
-open class FriendListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    open inner class RecyclerViewAdapter(private val clickLine: (Int, Array<String>, View)->Unit, private val longClickLine: (Int, Array<String>, View)->Boolean):
-        RecyclerView.Adapter<FriendListViewHolder>() {
+open class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    open inner class RecyclerViewAdapter(private val clickLine: (Int, Array<String>, View)->Unit, private val longClickLine: (Int, Array<String>, View)->Boolean = {_, _, _ -> true}):
+        RecyclerView.Adapter<ListViewHolder>() {
         private var listIDs: List<Int> = listOf()
         // getKeys by user
         open fun getKeys(): List<Int> = listOf()
         // getValue return [name, msg, count]
         open fun getValue(id: Int): Array<String>? = null
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendListViewHolder {
-            return FriendListViewHolder(
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
+            return ListViewHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.line_friend, parent, false)
             )
         }
 
         @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
-        override fun onBindViewHolder(holder: FriendListViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
             Thread{
                 listIDs.apply {
                     if (position < size) {
