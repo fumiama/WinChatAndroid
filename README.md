@@ -143,7 +143,7 @@
 
 <table>
 	<tr>
-		<td align="center"><img src="https://user-images.githubusercontent.com/41315874/202405586-89d541ea-80e1-4ac5-a3c7-b73d60a40b0e.jpg"></td>
+		<td align="center"><img src="https://user-images.githubusercontent.com/41315874/208307219-4874a6ab-f8b8-4afc-aeb2-0abf67a76a82.jpg"></td>
 		<td align="center"><img src="https://user-images.githubusercontent.com/41315874/202405609-439caa75-942a-49e7-ac85-7d2b1da5f3e4.png"></td>
 	</tr>
     <tr>
