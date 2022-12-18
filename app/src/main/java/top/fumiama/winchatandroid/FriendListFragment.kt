@@ -154,7 +154,7 @@ class FriendListFragment : Fragment() {
     }
 
     inner class FriendListViewHolderInstance(itemView: View): ListViewHolder(itemView) {
-        private val onLineClicked = { id: Int, data: Array<String>, v: View ->
+        private val onLineClicked = { id: Int, data: Array<String>, _: View ->
             val bundle = Bundle()
             bundle.putInt("id", id)
             bundle.putString("name", data[0])
@@ -162,7 +162,7 @@ class FriendListFragment : Fragment() {
             findNavController().navigate(R.id.action_FriendListFragment_to_ChatFragment, bundle)
         }
         private val onLineLongClickedTypes = resources.getStringArray(R.array.line_friend_choice_types)
-        private val onLineLongClicked = { id: Int, data: Array<String>, v: View ->
+        private val onLineLongClicked = { id: Int, _: Array<String>, _: View ->
             AlertDialog.Builder(context)
                 .setTitle(R.string.choice_title)
                 .setIcon(R.mipmap.ic_launcher)
