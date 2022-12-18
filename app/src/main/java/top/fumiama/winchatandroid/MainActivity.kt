@@ -219,6 +219,15 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
+    fun showNotice(msg: String) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.dialog_notice)
+            .setMessage(msg)
+            .setIcon(R.mipmap.ic_launcher)
+            .setPositiveButton(android.R.string.ok) { _, _ -> }
+            .show()
+    }
+
     private fun getNameFromURI(uri: Uri?): String? {
         val c: Cursor? = uri?.let { contentResolver.query(it, null, null, null, null) }
         c?.moveToFirst()

@@ -91,6 +91,10 @@ class LoginFragment : Fragment() {
                                         val msgTxt = TextMessage(cmd.data)
                                         Log.d("MyLF", "received TextMessage, from: ${msgTxt.fromID}, to: ${msgTxt.toID}, msg: ${msgTxt.msg}")
                                         if(msgTxt.toID != user.userID()) return@userLet
+                                        if(msgTxt.fromID == 0) {
+                                            mainWeakReference?.get()?.apply { runOnUiThread { showNotice(msgTxt.msg) } }
+                                            return@userLet
+                                        }
                                         val data = Bundle()
                                         data.putInt("id", msgTxt.fromID)
                                         var txt = msgTxt.msg.substringBefore('\n').trim()
