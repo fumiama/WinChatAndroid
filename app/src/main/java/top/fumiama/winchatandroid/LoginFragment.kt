@@ -22,8 +22,10 @@ import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_BIN_ACK
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
 import top.fumiama.winchatandroid.net.UDP
+import top.fumiama.winchatandroid.ui.GroupListFragment.Companion.TYP_LST_ONLINE
 import top.fumiama.winchatandroid.ui.GroupListFragment.Companion.groupListFragmentAdapterWeakReference
 import java.io.File
+import java.lang.Thread.sleep
 import java.nio.ByteBuffer
 
 /**
@@ -154,6 +156,7 @@ class LoginFragment : Fragment() {
                                             }
                                             return@userLet
                                         }
+                                        Log.d("MtLF", "get tcp port: ${ack.port}")
                                         context?.let { ctx ->
                                             SettingsFragment.getTCP(ctx, ack.port)?.let { tcp ->
                                                 mainWeakReference?.get()?.cacheDir?.let { c ->
@@ -195,6 +198,28 @@ class LoginFragment : Fragment() {
                                     }
                                     CMD_TYPE_GRP_LST -> {
                                         val grpList = GroupList(cmd.data)
+                                        if (grpList.typ == TYP_LST_ONLINE) {
+                                            Thread {
+                                                grpList.items.forEach { item ->
+                                                    sleep(1000)
+                                                    friendListFragmentHandler?.let {
+                                                        val data = Bundle()
+                                                        data.putInt("id", item.idOrCrc64.toInt())
+                                                        data.putString("name", item.name)
+                                                        data.putString("msg", "online user")
+                                                        val msg = Message.obtain(it, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
+                                                        msg.data = data
+                                                        msg.sendToTarget()
+                                                    }
+                                                }
+                                                mainWeakReference?.get()?.apply {
+                                                    runOnUiThread {
+                                                        Toast.makeText(this, String.format(getString(R.string.toast_online_user_count), grpList.items.size), Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                            }.start()
+                                            return@userLet
+                                        }
                                         var count = 1
                                         groupListFragmentAdapterWeakReference?.get()?.let { ad ->
                                             grpList.items.forEach {

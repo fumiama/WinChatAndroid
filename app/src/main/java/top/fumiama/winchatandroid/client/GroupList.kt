@@ -10,7 +10,7 @@ class GroupList(var typ: Byte, var groupID: Int, var items: Array<GroupListItem>
         data.let {
             val len = ByteBuffer.wrap(data, 5, 2).asReadOnlyBuffer().short
             var items = arrayOf<GroupListItem>()
-            var p = 0
+            var p = 7
             for(i in 0 until len) {
                 val dataLen = 8+2+ByteBuffer.wrap(data, p+8, 2).asReadOnlyBuffer().short.toInt()
                 items += GroupListItem(data.copyOfRange(p, p+dataLen))

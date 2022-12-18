@@ -13,13 +13,19 @@ import java.net.URI
 class SettingsFragment: PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_setting, rootKey)
-        //if(settingsPref == null) settingsPref = context?.let { PreferenceManager.getDefaultSharedPreferences(it) }
-        findPreference<EditTextPreference>("settings_server_ep")?.setOnPreferenceChangeListener { _, newValue ->
-            URI("my://$newValue").parseServerAuthority()?.let {
-                Log.d("MySF", "host: ${it.host}, port: ${it.port}")
-                ep = UDP(it.host, it.port)
+        findPreference<EditTextPreference>("settings_server_ep")?.apply {
+            PreferenceManager.getDefaultSharedPreferences(context)?.getString("settings_server_ep", "")?.let { eps ->
+                if(eps != "") {
+                    summary = eps
+                }
             }
-            return@setOnPreferenceChangeListener true
+            setOnPreferenceChangeListener { _, newValue ->
+                URI("my://$newValue").parseServerAuthority()?.let {
+                    Log.d("MySF", "host: ${it.host}, port: ${it.port}")
+                    ep = UDP(it.host, it.port)
+                }
+                return@setOnPreferenceChangeListener true
+            }
         }
     }
 

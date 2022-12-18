@@ -22,8 +22,10 @@ import top.fumiama.winchatandroid.client.Command
 import top.fumiama.winchatandroid.client.GroupJoinQuit
 import top.fumiama.winchatandroid.client.User
 import top.fumiama.winchatandroid.databinding.FragmentListBinding
+import top.fumiama.winchatandroid.ui.GroupListFragment
 import top.fumiama.winchatandroid.ui.ListViewHolder
 import java.io.File
+import java.nio.ByteBuffer
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -65,6 +67,22 @@ class FriendListFragment : Fragment() {
                 binding.root.postDelayed({
                     findNavController().navigate(R.id.action_FriendListFragment_to_LoginFragment)
                 }, 233)
+            } else {
+                user?.udp?.let { udp ->
+                    Thread {
+                        val d = ByteArray(5)
+                        d[0] = GroupListFragment.TYP_LST_ONLINE
+                        ByteBuffer.wrap(d, 1, 4).putInt(0)
+                        try {
+                            udp.send(Command(Command.CMD_TYPE_GRP_LST, d).marshal())
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            mainWeakReference?.get()?.runOnUiThread {
+                                Toast.makeText(context, "${e.cause}: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }.start()
+                }
             }
             binding.ffsw.isRefreshing = false
         }
@@ -80,6 +98,12 @@ class FriendListFragment : Fragment() {
     fun insertRow(b: Bundle) {
         val msg = b.getString("msg", "N/A")
         val id = b.getInt("id", 0)
+        b.getString("name")?.let { nm ->
+            if(nm.isNotEmpty()) pref?.edit {
+                putString("name$id", nm)
+                apply()
+            }
+        }
         Log.d("MyFLF", "id: $id, msg: $msg")
         pref?.getString(id.toString(), "")?.let { dataStr ->
             if(dataStr == "" || ad?.idDataMap?.containsKey(id) != true) { // new msg

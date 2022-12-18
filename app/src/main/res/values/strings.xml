@@ -19,13 +19,14 @@
     <string name="toast_get_data">Getting Data</string>
     <string name="toast_invalid_group">Invalid Group</string>
     <string name="toast_login">Please Login First</string>
-    <string name="toast_login_success">Login Success, ID: %1$s</string>
-    <string name="toast_join_group_failed">Join Group %1$s Failed</string>
-    <string name="toast_quit_group_failed">Quit Group %1$s Failed</string>
-    <string name="toast_quit_group_success">Quit Group %1$s Succeeded</string>
+    <string name="toast_login_success">Login Success, ID: %1$d</string>
+    <string name="toast_join_group_failed">Join Group %1$d Failed</string>
+    <string name="toast_quit_group_failed">Quit Group %1$d Failed</string>
+    <string name="toast_quit_group_success">Quit Group %1$d Succeeded</string>
     <string name="toast_send_file_failed_server_refused">Send file failed: sever refused</string>
     <string name="toast_send_file_failed_file_not_found">Send file failed: file not found</string>
     <string name="toast_send_file_failed_server_error">Send file failed: server error</string>
+    <string name="toast_online_user_count">Online Users: %1$d</string>
 
     <string name="name_me">Me</string>
     <string name="name_anonymous">Anonymous</string>

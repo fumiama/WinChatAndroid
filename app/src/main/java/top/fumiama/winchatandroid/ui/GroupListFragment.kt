@@ -108,6 +108,7 @@ open class GroupListFragment(private val typ: Byte) : Fragment() {
     companion object {
         const val TYP_LST_MEMBER: Byte = 0
         const val TYP_LST_FILE: Byte = 1
+        const val TYP_LST_ONLINE: Byte = 2
         var groupListFragmentAdapterWeakReference: WeakReference<ListViewHolderInstance.RecyclerViewAdapter>? = null
     }
 }

@@ -97,7 +97,6 @@ class ChatFragment : Fragment() {
                                         }
                                     }
                                 }
-
                                 binding.cfl.addView(line)
                                 data = data.copyOfRange(cmd.length, data.size)
                             }
