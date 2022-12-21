@@ -15,6 +15,7 @@ class ChatFragmentHandler(fragment: ChatFragment, looper: Looper): Handler(loope
             CHAT_F_MSG_INSERT_TO_FILE -> weakF.get()?.insertToFile(msg.data)
             CHAT_F_NAV_TO_FILE_F -> weakF.get()?.navigate2file()
             CHAT_F_NAV_TO_MEMBER_F -> weakF.get()?.navigate2members()
+            CHAT_F_MSG_INSERT_FROM_FILE -> weakF.get()?.insertFromFile(msg.data)
         }
     }
 
@@ -23,5 +24,6 @@ class ChatFragmentHandler(fragment: ChatFragment, looper: Looper): Handler(loope
         const val CHAT_F_MSG_INSERT_TO_FILE = 2
         const val CHAT_F_NAV_TO_FILE_F = 3
         const val CHAT_F_NAV_TO_MEMBER_F = 4
+        const val CHAT_F_MSG_INSERT_FROM_FILE = 5
     }
 }

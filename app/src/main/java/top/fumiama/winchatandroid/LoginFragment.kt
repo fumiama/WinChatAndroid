@@ -18,6 +18,7 @@ import top.fumiama.winchatandroid.client.*
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_JOIN
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_LST
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_GRP_QUIT
+import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_BIN
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_BIN_ACK
 import top.fumiama.winchatandroid.client.Command.Companion.CMD_TYPE_MSG_TXT
 import top.fumiama.winchatandroid.databinding.FragmentLoginBinding
@@ -231,6 +232,34 @@ class LoginFragment : Fragment() {
                                                 count++
                                             }
                                             ad.refresh()
+                                        }
+                                    }
+                                    CMD_TYPE_MSG_BIN -> {
+                                        val msgBin = BinMessage(cmd.data)
+                                        Log.d("MyLF", "received BinMessage, from: ${msgBin.fromID}, to: ${msgBin.toID}, crc64: ${msgBin.crc64}")
+                                        if(msgBin.toID != user.userID() || msgBin.fromID == 0) return@userLet
+                                        val data = Bundle()
+                                        data.putInt("id", msgBin.fromID)
+                                        data.putLong("crc64", msgBin.crc64)
+                                        data.putString("msg", "new file")
+                                        friendListFragmentHandler?.let {
+                                            val msg = Message.obtain(it, FriendListFragmentHandler.FRIEND_LST_F_MSG_INSERT_ROW)
+                                            msg.data = data
+                                            msg.sendToTarget()
+                                        }
+                                        Log.d("MyLF", "lookup msg folder $msgFolder")
+                                        File(msgFolder, "${msgBin.fromID}").apply {
+                                            Log.d("MyLF", "append bytes to $this")
+                                            if(!exists()) createNewFile()
+                                            setReadable(true)
+                                            setWritable(true)
+                                            setExecutable(false)
+                                            appendBytes(cmd.marshal())
+                                        }
+                                        chatFragmentHandler?.let {
+                                            val msgChat = Message.obtain(it, ChatFragmentHandler.CHAT_F_MSG_INSERT_FROM_FILE)
+                                            msgChat.data = data
+                                            msgChat.sendToTarget()
                                         }
                                     }
                                     else -> {}

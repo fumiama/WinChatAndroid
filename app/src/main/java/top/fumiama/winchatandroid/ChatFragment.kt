@@ -234,6 +234,26 @@ class ChatFragment : Fragment() {
         }
     }
 
+    fun insertFromFile(bundle: Bundle) {
+        val crc64 = bundle.getLong("crc64", 0)
+        val fromID = bundle.getInt("id", 0)
+        if(fromID != arguments?.getInt("id", -1)) return
+        context?.let { ctx ->
+            (PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name$crc64", null)?:mainWeakReference?.get()?.getString(R.string.filename_unknown))?.let { name ->
+                val line = layoutInflater.inflate(R.layout.from_message, binding.cfl, false)
+                line.frl.fromUsernameGroup.fromUsername.text = fromID.toString()
+                line.frl.fromMessage.text = name
+                line.frl.fromUsernameGroup.icon_fb1.setBackgroundResource(R.drawable.ic_girlz_pic)
+                line.setOnClickListener {
+                    mainWeakReference?.get()?.runOnUiThread {
+                        Toast.makeText(context, "stub!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                binding.cfl.addView(line)
+            }
+        }
+    }
+
     fun navigate2file() {
         if(user == null) {
             Toast.makeText(context, R.string.toast_login, Toast.LENGTH_SHORT).show()
