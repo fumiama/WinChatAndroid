@@ -76,12 +76,12 @@ class ChatFragment : Fragment() {
                             }
                             CMD_TYPE_MSG_BIN -> {
                                 val binMsg = BinMessage(cmd.data)
-                                Log.d("MyCF", "load bin msg from ${binMsg.fromID}, to ${binMsg.toID}, crc64: ${binMsg.msg}")
+                                Log.d("MyCF", "load bin msg from ${binMsg.fromID}, to ${binMsg.toID}, msg: ${binMsg.msg}")
                                 val line = inflater.inflate(if(binMsg.fromID == fromID) R.layout.from_message else R.layout.to_message, binding.cfl, false)
                                 context?.let { ctx ->
                                     if(binMsg.fromID == fromID) {
                                         line.frl.fromUsernameGroup.fromUsername.text = name
-                                        line.frl.fromMessage.text = PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name${binMsg.crc64}", null)?:mainWeakReference?.get()?.getString(R.string.filename_unknown)
+                                        line.frl.fromMessage.text = binMsg.msg
                                         line.frl.fromUsernameGroup.icon_fb1.setBackgroundResource(R.drawable.ic_girlz_pic)
                                         line.frl.fromMessage.setOnClickListener {
                                             mainWeakReference?.get()?.runOnUiThread {
@@ -90,7 +90,7 @@ class ChatFragment : Fragment() {
                                         }
                                     } else {
                                         line.tol.toUsernameGroup.toUsername.setText(R.string.name_me)
-                                        line.tol.toMessage.text = PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name${binMsg.crc64}", null)?:mainWeakReference?.get()?.getString(R.string.filename_unknown)
+                                        line.tol.toMessage.text = binMsg.msg
                                         line.tol.toUsernameGroup.icon_fb2.setBackgroundResource(R.drawable.ic_girl_pic)
                                         line.tol.toMessage.setOnClickListener {
 
@@ -164,16 +164,18 @@ class ChatFragment : Fragment() {
                     try {
                         val crc64 = CRC64().crc64(inputFile)
                         mainWeakReference?.get()?.apply {
-                            inputFile.copyTo(File(cacheDir, "crc64$crc64"), true)
+                            val f = File(cacheDir, "crc64$crc64")
+                            inputFile.copyTo(f, true)
+                            Log.d("MyCF", "copy to file: $f, exist: ${f.exists()}")
                         }
                         context?.let { ctx ->
                             PreferenceManager.getDefaultSharedPreferences(ctx).edit {
-                                putString("crc64name$crc64", "$name.${inputFile.extension}")
+                                putString("crc64name$crc64", "$name")
                                 apply()
                             }
                         }
                         user?.udp?.apply {
-                            val d = Command(CMD_TYPE_MSG_BIN, BinMessage(user!!.userID(), fromID, crc64, "$name.${inputFile.extension}").marshal()).marshal()
+                            val d = Command(CMD_TYPE_MSG_BIN, BinMessage(user!!.userID(), fromID, crc64, "$name").marshal()).marshal()
                             mainWeakReference?.get()?.msgFolder?.apply {
                                 File(this, "$fromID").apply {
                                     if(!exists()) createNewFile()
@@ -237,21 +239,18 @@ class ChatFragment : Fragment() {
     fun insertFromFile(bundle: Bundle) {
         val crc64 = bundle.getLong("crc64", 0)
         val fromID = bundle.getInt("id", 0)
+        val name = bundle.getString("msg", mainWeakReference?.get()?.getString(R.string.filename_unknown))
         if(fromID != arguments?.getInt("id", -1)) return
-        context?.let { ctx ->
-            (PreferenceManager.getDefaultSharedPreferences(ctx).getString("crc64name$crc64", null)?:mainWeakReference?.get()?.getString(R.string.filename_unknown))?.let { name ->
-                val line = layoutInflater.inflate(R.layout.from_message, binding.cfl, false)
-                line.frl.fromUsernameGroup.fromUsername.text = fromID.toString()
-                line.frl.fromMessage.text = name
-                line.frl.fromUsernameGroup.icon_fb1.setBackgroundResource(R.drawable.ic_girlz_pic)
-                line.setOnClickListener {
-                    mainWeakReference?.get()?.runOnUiThread {
-                        Toast.makeText(context, "stub!", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                binding.cfl.addView(line)
+        val line = layoutInflater.inflate(R.layout.from_message, binding.cfl, false)
+        line.frl.fromUsernameGroup.fromUsername.text = fromID.toString()
+        line.frl.fromMessage.text = name
+        line.frl.fromUsernameGroup.icon_fb1.setBackgroundResource(R.drawable.ic_girlz_pic)
+        line.setOnClickListener {
+            mainWeakReference?.get()?.runOnUiThread {
+                Toast.makeText(context, "stub!", Toast.LENGTH_SHORT).show()
             }
         }
+        binding.cfl.addView(line)
     }
 
     fun navigate2file() {

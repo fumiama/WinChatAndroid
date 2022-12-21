@@ -43,7 +43,7 @@ class SettingsFragment: PreferenceFragmentCompat() {
         }
         fun getTCP(context: Context, port: Short) = PreferenceManager.getDefaultSharedPreferences(context).getString("settings_server_ep", null)?.let { s ->
             URI("my://$s").parseServerAuthority()?.let {
-                Log.d("MySF", "tcp: get host: ${it.host}, port: ${it.port}")
+                Log.d("MySF", "tcp: get host: ${it.host}")
                 TCP(it.host, port.toInt())
             }
         }
